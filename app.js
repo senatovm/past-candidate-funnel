@@ -4,7 +4,7 @@ const COLORS = {
   red: { 1: "#FEF7F8", 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#D23F57", 7: "#A4283D" },
   orange: { 1: "#FFF7ED", 2: "#FFEFDC", 3: "#FFE2BA", 5: "#E67600", 6: "#B65E00" },
   yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500", 5: "#B09200", 6: "#8C7300" },
-  green: { 1: "#EFFAF7", 2: "#E0F4EE", 3: "#C7EBE1", 4: "#66CAAF", 5: "#2DA68B", 6: "#2F836E", 7: "#0E6352" },
+  green: { 1: "#EFFAF7", 2: "#E0F4EE", 3: "#C7EBE1", 4: "#66CAAF", 5: "#2DA68B", 6: "#2F836E", 7: "#0E6352", 8: "#054338" },
   blue: { 1: "#F5F9FF", 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 5: "#5795EE", 6: "#2372E2", 7: "#004ECB", 8: "#003785" }
 };
 
@@ -273,13 +273,13 @@ function enrich(stages) {
 }
 
 const UPDATED_HUES = {
-  "Applied/Added": { hue: "grey", step: 5 },
-  "Application screening": { hue: "violet", step: 5 },
-  "Screening interviews": { hue: "red", step: 5 },
-  Assessment: { hue: "orange", step: 5 },
-  "Advanced interviews": { hue: "yellow", step: 5 },
-  Reference: { hue: "green", step: 5 },
-  Offer: { hue: "blue", step: 5 },
+  "Applied/Added": { hue: "red", step: 5 },
+  "Application screening": { hue: "orange", step: 5 },
+  "Screening interviews": { hue: "yellow", step: 4 },
+  Assessment: { hue: "green", step: 5 },
+  "Advanced interviews": { hue: "violet", step: 5 },
+  Reference: { hue: "blue", step: 5 },
+  Offer: { hue: "green", step: 7 },
   Hired: { hue: "blue", step: 7 }
 };
 
@@ -1408,7 +1408,7 @@ Labels
   fills: ${
     state.colorSet === "updated"
       ? state.richColor
-        ? "updated hues: grey 5, violet 5, red 5, orange 5, yellow 5, green 5, blue 5, blue 7"
+        ? "updated hues: red 5, orange 5, yellow 4, green 5, violet 5, blue 5, green 7, blue 7"
         : "updated hues, pale step 2"
       : state.richColor
         ? "production rich tokens"
@@ -1453,6 +1453,22 @@ function randomizeVolumes() {
 function setVolume(i, n) {
   state.volumes[i] = clampVolume(n);
   syncVolumeFields();
+  render();
+}
+
+function syncNeckFields() {
+  document.querySelectorAll("[data-neck]").forEach((el) => {
+    el.value = String(el.dataset.neck === "width" ? state.neckWidth : state.neckHeight);
+  });
+}
+
+function setNeck(which, n) {
+  if (!Number.isFinite(n)) return;
+  const v = Math.min(100, Math.max(0, Math.round(n)));
+  if (which === "width") state.neckWidth = v;
+  else state.neckHeight = v;
+  syncNeckFields();
+  state.forceRebuild = true;
   render();
 }
 
@@ -1506,6 +1522,7 @@ function syncControls() {
   document.getElementById("splitNumbers").checked = state.splitNumbers;
   document.getElementById("addLater").checked = state.addLater;
   document.getElementById("minHeightPx").value = String(state.minHeightPx);
+  syncNeckFields();
   syncVolumeFields();
 }
 
@@ -1571,6 +1588,7 @@ function render() {
   setShown("height-row", funnel || horizontal || columns);
   setShown("numbers-row", overlay);
   setShown("minpx-toggle", (funnel || horizontal || columns) && usesMinHeight());
+  setShown("neck-row", funnel);
   setShown("cols-toggle", overlay && state.labels === "line");
   frame.classList.toggle("is-horizontal", horizontal);
   frame.classList.toggle("is-columns", columns);
@@ -1703,6 +1721,12 @@ function bind() {
     if (!Number.isFinite(n)) return;
     state.minHeightPx = Math.min(80, Math.max(8, Math.round(n)));
     if (usesMinHeight()) render();
+  });
+  document.getElementById("neck-row").addEventListener("input", (e) => {
+    const el = e.target.closest("[data-neck]");
+    if (!el) return;
+    if (el.type === "number" && el.value === "") return;
+    setNeck(el.dataset.neck, Number(el.value));
   });
   window.addEventListener("resize", () => {
     if (state.view === "horizontal") render();

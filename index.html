@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=26" />
+  <link rel="stylesheet" href="styles.css?v=27" />
 </head>
 <body>
   <div class="page">
@@ -56,6 +56,23 @@
           px
         </label>
         <span class="hint" id="height-hint"></span>
+      </div>
+      <div class="setting stack is-off" id="neck-row">
+        <span class="k">Neck</span>
+        <div class="sliders">
+          <label class="slide">
+            <span>Width</span>
+            <input type="range" data-neck="width" min="0" max="100" value="32" />
+            <input type="number" data-neck="width" min="0" max="100" value="32" />
+            <span class="unit">%</span>
+          </label>
+          <label class="slide">
+            <span>Height</span>
+            <input type="range" data-neck="height" min="0" max="100" value="22" />
+            <input type="number" data-neck="height" min="0" max="100" value="22" />
+            <span class="unit">%</span>
+          </label>
+        </div>
       </div>
       <div class="setting" id="numbers-row">
         <span class="k">Numbers</span>
@@ -131,6 +148,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>
