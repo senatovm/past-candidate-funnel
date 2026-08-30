@@ -146,7 +146,7 @@ body {
   color: var(--grey-5);
 }
 
-.spec-head {
+.panel-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -154,25 +154,25 @@ body {
   margin-bottom: 14px;
 }
 
-.spec-head h2 {
+.panel-head h2 {
   margin: 0;
   flex: 1;
   min-width: 0;
 }
 
-.spec-actions {
+.panel-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.spec-actions a {
+.panel-actions a {
   color: var(--blue-7);
   font: 500 13px var(--font);
   text-decoration: none;
 }
 
-.spec-actions a:hover {
+.panel-actions a:hover {
   text-decoration: underline;
 }
 
@@ -306,11 +306,10 @@ body {
   flex-direction: column;
 }
 
-.volume-actions {
+.volume-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  margin-bottom: 12px;
 }
 
 .volume-grid {
@@ -333,22 +332,21 @@ body {
   white-space: normal;
 }
 
-.combine-label {
-  display: flex;
-  align-items: flex-start;
-  width: 100%;
-  margin-top: 14px;
-  line-height: 1.43;
+.volume-item.volume-combine {
+  grid-template-columns: minmax(72px, 0.9fr) 18px minmax(0, 1fr);
+  align-items: start;
 }
 
-.combine-label input[type="checkbox"] {
-  margin-top: 2px;
+.volume-item.volume-combine input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
   flex-shrink: 0;
+  accent-color: var(--blue-7);
 }
 
-.combine-name {
-  font-weight: 500;
-  color: var(--grey-9);
+.volume-item.volume-combine .hint {
+  line-height: 1.35;
 }
 
 .text-btn {
