@@ -136,7 +136,7 @@ const VIEW_DEFAULTS = {
   funnel: {
     labels: "table",
     heightMode: "progfloor",
-    minHeightPx: 16,
+    minHeightPx: 24,
     richColor: true,
     splitNumbers: true,
     numberCount: 1,
@@ -1507,6 +1507,12 @@ function render() {
 }
 
 function bind() {
+  document.querySelectorAll(".l1 a, .l2 a, .l2-fold, .filters button, .topbar button, .star-btn").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      if (el.tagName === "A" && el.getAttribute("target") === "_blank") return;
+      e.preventDefault();
+    });
+  });
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.addEventListener("click", () => switchView(btn.dataset.view));
   });

@@ -3,96 +3,212 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Funnel by stages — chart comparison</title>
+  <title>Past candidate funnel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=17" />
+  <link rel="stylesheet" href="styles.css?v=18" />
 </head>
 <body>
-  <div class="page">
-    <section class="widget">
-      <div class="widget-head">
-        <h2>Funnel by stages</h2>
-        <svg class="info" viewBox="64 64 896 896" aria-hidden="true"><path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path fill="currentColor" d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"/></svg>
-        <label class="toggle header-toggle" title="When on, each stage count is this stage plus every stage after it.">
-          <input id="addLater" type="checkbox" />
-          Combine
-        </label>
-      </div>
-      <div id="single" class="chart-frame">
-        <div id="chart-main" class="chart"></div>
-        <div id="col-anno" class="col-anno hidden" aria-hidden="true"></div>
-        <svg class="label-lines" aria-hidden="true"></svg>
-        <ul id="labels-main" class="label-col hidden"></ul>
-      </div>
-    </section>
+  <svg class="sprites" aria-hidden="true">
+    <symbol id="i-grid" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M4 5h4v4H4zM10 5h4v4h-4zM16 5h4v4h-4zM4 11h4v4H4zM10 11h4v4h-4zM16 11h4v4h-4zM4 17h4v4H4zM10 17h4v4h-4zM16 17h4v4h-4z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M16 16l4 4"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6 16h12l-1.2-2.2V10a4.8 4.8 0 00-9.6 0v3.8L6 16z"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M10 18a2 2 0 004 0"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9.6 9.4a2.4 2.4 0 114.2 1.6c-.7.7-1.3 1.1-1.3 2.2M12 16.6h.01"/></symbol>
+    <symbol id="i-hiring" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M5 6h14v13H5z"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9 6V5a3 3 0 016 0v1M8 12l2.2 2.2L16 8.4"/></symbol>
+    <symbol id="i-talent" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M6 18.5c.6-3 3-4.5 6-4.5s5.4 1.5 6 4.5"/></symbol>
+    <symbol id="i-library" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M4 7.5l8-3 8 3v11l-8 3-8-3z"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M12 4.5v14"/></symbol>
+    <symbol id="i-sources" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M4 12h16M12 4c2.4 2.6 3.6 5.3 3.6 8s-1.2 5.4-3.6 8c-2.4-2.6-3.6-5.3-3.6-8s1.2-5.4 3.6-8z"/></symbol>
+    <symbol id="i-analytics" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M6 17V11M12 17V7M18 17v-4"/></symbol>
+    <symbol id="i-teammates" viewBox="0 0 24 24"><circle cx="9" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="16" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M4.8 18c.4-2.4 2.2-3.6 4.2-3.6s3.8 1.2 4.2 3.6M13.4 18c.2-1.6 1.2-2.6 2.6-2.6 1.3 0 2.3 1 2.6 2.6"/></symbol>
+    <symbol id="i-apps" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M5 5h6v6H5zM13 5h6v6h-6zM5 13h6v6H5zM13 13h6v6h-6z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M12 4.5v1.6M12 17.9v1.6M4.5 12h1.6M17.9 12h1.6M6.4 6.4l1.1 1.1M16.5 16.5l1.1 1.1M17.6 6.4l-1.1 1.1M7.5 16.5l-1.1 1.1"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M12 4.8l2.1 4.4 4.8.7-3.5 3.4.8 4.8L12 16l-4.2 2.1.8-4.8-3.5-3.4 4.8-.7z"/></symbol>
+    <symbol id="i-info" viewBox="64 64 896 896"><path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path fill="currentColor" d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M8 10l4 4 4-4"/></symbol>
+  </svg>
 
-    <section class="panel" id="settings">
-      <div class="chart-switch">
-        <div class="seg" id="chart-seg" role="tablist" aria-label="Chart variant">
-          <button type="button" data-view="current" aria-pressed="false">Current (columnrange)</button>
-          <button type="button" data-view="funnel" aria-pressed="true">Funnel</button>
-          <button type="button" data-view="columns" aria-pressed="false">Column funnel</button>
-          <button type="button" data-view="horizontal" aria-pressed="false">Horizontal funnel (custom)</button>
-        </div>
-      </div>
-      <div class="setting" id="labels-row">
-        <span class="k">Labels</span>
-        <div class="seg" id="labels-seg" role="tablist" aria-label="Label placement">
-          <button type="button" data-labels="inside" aria-pressed="false">Inside</button>
-          <button type="button" data-labels="side" aria-pressed="false">Side</button>
-          <button type="button" data-labels="line" aria-pressed="false">Line</button>
-          <button type="button" data-labels="table" aria-pressed="true">Table</button>
-        </div>
-      </div>
-      <div class="setting" id="height-row">
-        <span class="k">Height</span>
-        <div class="seg" id="height-seg" role="tablist" aria-label="Slice height">
-          <button type="button" data-height="share" aria-pressed="false">Proportional</button>
-          <button type="button" data-height="progressive" aria-pressed="false">Progressive</button>
-          <button type="button" data-height="floor" aria-pressed="false">Proportional min height</button>
-          <button type="button" data-height="progfloor" aria-pressed="true">Progressive min height</button>
-        </div>
-        <label class="toggle field" id="minpx-toggle">
-          <input id="minHeightPx" type="number" min="8" max="80" value="16" />
-          px
-        </label>
-        <span class="hint" id="height-hint"></span>
-      </div>
-      <div class="setting" id="numbers-row">
-        <span class="k">Numbers</span>
-        <div class="seg" id="numbers-seg" role="tablist" aria-label="Numbers per stage">
-          <button type="button" data-numbers="1" aria-pressed="true">1</button>
-          <button type="button" data-numbers="2" aria-pressed="false">2</button>
-          <button type="button" data-numbers="3" aria-pressed="false">3</button>
-        </div>
-        <span class="hint" id="numbers-hint">count</span>
-        <label class="toggle" id="cols-toggle">
-          <input id="splitNumbers" type="checkbox" checked />
-          Number columns
-        </label>
-      </div>
-      <div class="setting" id="style-row">
-        <span class="k">Style</span>
-        <label class="toggle" id="rich-toggle">
-          <input id="richColor" type="checkbox" checked />
-          Rich color
-        </label>
-      </div>
-      <div class="setting stack" id="volume-row">
-        <span class="k">Volume</span>
-        <div class="volume-wrap">
-          <div id="volume-grid" class="volume-grid"></div>
-          <button type="button" class="text-btn" id="volume-reset">Reset to sample</button>
-        </div>
-      </div>
-    </section>
+  <header class="topbar">
+    <button type="button" class="icon-btn" aria-label="Open app switcher menu">
+      <svg><use href="#i-grid" /></svg>
+    </button>
+    <button type="button" class="search-btn" aria-label="Search">
+      <svg><use href="#i-search" /></svg>
+      <span>Search</span>
+    </button>
+    <div class="topbar-right">
+      <button type="button" class="btn-new">New</button>
+      <button type="button" class="icon-btn" aria-label="Notifications"><svg><use href="#i-bell" /></svg></button>
+      <button type="button" class="icon-btn" aria-label="Help"><svg><use href="#i-help" /></svg></button>
+      <span class="avatar" aria-label="Max Senatov">MS</span>
+    </div>
+  </header>
 
-    <section class="panel spec" id="spec">
-      <h2>For developers</h2>
-      <pre id="spec-body"></pre>
-    </section>
+  <div class="shell">
+    <nav class="l1" aria-label="Product">
+      <a class="l1-item" href="#" title="Hiring"><svg><use href="#i-hiring" /></svg></a>
+      <a class="l1-item" href="#" title="Talent"><svg><use href="#i-talent" /></svg></a>
+      <a class="l1-item" href="#" title="Library"><svg><use href="#i-library" /></svg></a>
+      <a class="l1-item" href="#" title="Sources"><svg><use href="#i-sources" /></svg></a>
+      <a class="l1-item is-current" href="#" title="Analytics" aria-current="page"><svg><use href="#i-analytics" /></svg></a>
+      <a class="l1-item" href="#" title="Teammates"><svg><use href="#i-teammates" /></svg></a>
+      <a class="l1-item" href="#" title="Apps"><svg><use href="#i-apps" /></svg></a>
+      <a class="l1-item l1-foot" href="#" title="Settings"><svg><use href="#i-settings" /></svg></a>
+    </nav>
+
+    <aside class="l2" aria-label="Analytics">
+      <h3 class="l2-heading">Analytics</h3>
+      <a class="l2-item" href="#">All reports</a>
+      <button type="button" class="l2-fold" aria-expanded="false">My favorites <svg><use href="#i-chevron" /></svg></button>
+      <button type="button" class="l2-fold is-open" aria-expanded="true">By Spark Hire <svg><use href="#i-chevron" /></svg></button>
+      <div class="l2-group">
+        <a class="l2-item" href="#">Highlights report</a>
+        <div class="l2-label">Positions</div>
+        <a class="l2-item" href="#">Hires overview</a>
+        <a class="l2-item" href="#">Open positions &amp; openings</a>
+        <div class="l2-label">Workflow</div>
+        <a class="l2-item" href="#">Candidates in progress</a>
+        <a class="l2-item" href="#">Activity breakdown</a>
+        <a class="l2-item" href="#">Offers overview</a>
+        <a class="l2-item is-current" href="#" aria-current="page">Past candidate funnel</a>
+        <a class="l2-item" href="#">Opening approval</a>
+        <div class="l2-label">Teammates</div>
+        <a class="l2-item" href="#">Team workload</a>
+        <a class="l2-item" href="#">Team engagement</a>
+        <div class="l2-label">Sources</div>
+        <a class="l2-item" href="#">Source quality</a>
+        <a class="l2-item" href="#">Referrals</a>
+        <a class="l2-item" href="#">Marketing campaigns</a>
+        <div class="l2-label">Leads</div>
+        <a class="l2-item" href="#">Leads in progress</a>
+        <a class="l2-item" href="#">Leads overview</a>
+        <div class="l2-label">Management</div>
+        <a class="l2-item" href="#">Management dashboard</a>
+        <a class="l2-item" href="#">Management summary</a>
+        <a class="l2-item" href="#">Hiring plan</a>
+        <div class="l2-label">Disposition</div>
+        <a class="l2-item" href="#">Rejected candidates</a>
+        <a class="l2-item" href="#">Withdrawn candidates</a>
+        <div class="l2-label">Kpi</div>
+        <a class="l2-item" href="#">Activity per hire</a>
+        <a class="l2-item" href="#">Time to hire</a>
+        <a class="l2-item" href="#">Apply to hire</a>
+        <div class="l2-label">Diversity</div>
+        <a class="l2-item" href="#">Candidate diversity EEO</a>
+      </div>
+      <button type="button" class="l2-fold" aria-expanded="false">Resources <svg><use href="#i-chevron" /></svg></button>
+      <a class="l2-item" href="#">Export</a>
+    </aside>
+
+    <main class="report">
+      <header class="report-head">
+        <div class="report-title-row">
+          <h1>Past candidate funnel</h1>
+          <button type="button" class="icon-btn star-btn" aria-label="Favorite"><svg><use href="#i-star" /></svg></button>
+          <a class="learn-more" href="https://recruit-support.sparkhire.com/hc/en-us/articles/40045044188699-Reports-Past-candidates-funnel-detailed-guide" target="_blank" rel="noreferrer">Learn more</a>
+        </div>
+        <p class="report-desc">Analyze candidate flow through the recruiting funnel. Examine pass-through and drop-off rates for candidates who are no longer in process.</p>
+      </header>
+
+      <div class="filters" aria-label="Report filters">
+        <button type="button" class="chip is-on">Default</button>
+        <button type="button" class="chip">Candidate added date: Q3 2026 <svg><use href="#i-chevron" /></svg></button>
+        <button type="button" class="chip">Position <svg><use href="#i-chevron" /></svg></button>
+        <button type="button" class="chip">Department <svg><use href="#i-chevron" /></svg></button>
+        <button type="button" class="chip">Pool position (1) <svg><use href="#i-chevron" /></svg></button>
+        <button type="button" class="text-btn filter-clear">Clear filters</button>
+        <button type="button" class="icon-btn" aria-label="Bookmark filters"><svg><use href="#i-star" /></svg></button>
+      </div>
+
+      <section class="widget">
+        <div class="widget-head">
+          <h2>Funnel by stages</h2>
+          <svg class="info"><use href="#i-info" /></svg>
+          <label class="toggle header-toggle" title="When on, each stage count is this stage plus every stage after it.">
+            <input id="addLater" type="checkbox" />
+            Combine
+          </label>
+        </div>
+        <div id="single" class="chart-frame">
+          <div id="chart-main" class="chart"></div>
+          <div id="col-anno" class="col-anno hidden" aria-hidden="true"></div>
+          <svg class="label-lines" aria-hidden="true"></svg>
+          <ul id="labels-main" class="label-col hidden"></ul>
+        </div>
+      </section>
+
+      <section class="widget" id="settings">
+        <div class="widget-head">
+          <h2>Chart settings</h2>
+        </div>
+        <div class="setting" id="chart-row">
+          <span class="k">Chart</span>
+          <div class="seg" id="chart-seg" role="tablist" aria-label="Chart variant">
+            <button type="button" data-view="current" aria-pressed="false">Current (columnrange)</button>
+            <button type="button" data-view="funnel" aria-pressed="true">Funnel</button>
+            <button type="button" data-view="columns" aria-pressed="false">Column funnel</button>
+            <button type="button" data-view="horizontal" aria-pressed="false">Horizontal funnel (custom)</button>
+          </div>
+        </div>
+        <div class="setting" id="labels-row">
+          <span class="k">Labels</span>
+          <div class="seg" id="labels-seg" role="tablist" aria-label="Label placement">
+            <button type="button" data-labels="inside" aria-pressed="false">Inside</button>
+            <button type="button" data-labels="side" aria-pressed="false">Side</button>
+            <button type="button" data-labels="line" aria-pressed="false">Line</button>
+            <button type="button" data-labels="table" aria-pressed="true">Table</button>
+          </div>
+        </div>
+        <div class="setting" id="height-row">
+          <span class="k">Height</span>
+          <div class="seg" id="height-seg" role="tablist" aria-label="Slice height">
+            <button type="button" data-height="share" aria-pressed="false">Proportional</button>
+            <button type="button" data-height="progressive" aria-pressed="false">Progressive</button>
+            <button type="button" data-height="floor" aria-pressed="false">Proportional min height</button>
+            <button type="button" data-height="progfloor" aria-pressed="true">Progressive min height</button>
+          </div>
+          <label class="toggle field" id="minpx-toggle">
+            <input id="minHeightPx" type="number" min="8" max="80" value="24" />
+            px
+          </label>
+          <span class="hint" id="height-hint"></span>
+        </div>
+        <div class="setting" id="numbers-row">
+          <span class="k">Numbers</span>
+          <div class="seg" id="numbers-seg" role="tablist" aria-label="Numbers per stage">
+            <button type="button" data-numbers="1" aria-pressed="true">1</button>
+            <button type="button" data-numbers="2" aria-pressed="false">2</button>
+            <button type="button" data-numbers="3" aria-pressed="false">3</button>
+          </div>
+          <span class="hint" id="numbers-hint">count</span>
+          <label class="toggle" id="cols-toggle">
+            <input id="splitNumbers" type="checkbox" checked />
+            Number columns
+          </label>
+        </div>
+        <div class="setting" id="style-row">
+          <span class="k">Style</span>
+          <label class="toggle" id="rich-toggle">
+            <input id="richColor" type="checkbox" checked />
+            Rich color
+          </label>
+        </div>
+        <div class="setting stack" id="volume-row">
+          <span class="k">Volume</span>
+          <div class="volume-wrap">
+            <div id="volume-grid" class="volume-grid"></div>
+            <button type="button" class="text-btn" id="volume-reset">Reset to sample</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="widget spec" id="spec">
+        <div class="widget-head">
+          <h2>For developers</h2>
+        </div>
+        <pre id="spec-body"></pre>
+      </section>
+    </main>
   </div>
 
   <div id="mask" class="mask hidden"></div>
@@ -111,6 +227,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>
