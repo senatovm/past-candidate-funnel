@@ -10,7 +10,7 @@ const COLORS = {
 const STAGES = [
   {
     name: "Applied/Added",
-    value: 42,
+    value: 58,
     backgroundColor: COLORS.red[2],
     backgroundColorActive: COLORS.red[3],
     richFill: COLORS.red[3],
@@ -21,7 +21,7 @@ const STAGES = [
   },
   {
     name: "Application screening",
-    value: 17,
+    value: 123,
     backgroundColor: COLORS.orange[2],
     backgroundColorActive: COLORS.orange[3],
     richFill: COLORS.orange[3],
@@ -32,7 +32,7 @@ const STAGES = [
   },
   {
     name: "Screening interviews",
-    value: 12,
+    value: 133,
     backgroundColor: COLORS.yellow[1],
     backgroundColorActive: COLORS.yellow[2],
     richFill: COLORS.yellow[2],
@@ -43,7 +43,7 @@ const STAGES = [
   },
   {
     name: "Assessment",
-    value: 9,
+    value: 48,
     backgroundColor: COLORS.green[1],
     backgroundColorActive: COLORS.green[2],
     richFill: COLORS.green[3],
@@ -106,15 +106,15 @@ const CURSOR = "nesw-resize";
 const DEFAULT_VOLUMES = STAGES.map((stage) => stage.value);
 
 const state = {
-  view: "current",
-  neckWidth: 28,
-  neckHeight: 0,
+  view: "funnel",
+  neckWidth: 22,
+  neckHeight: 22,
   heightMode: "floor",
-  minHeightPx: 28,
+  minHeightPx: 18,
   richColor: true,
-  labels: "line",
+  labels: "side",
   splitNumbers: true,
-  numberCount: 2,
+  numberCount: 1,
   volumes: DEFAULT_VOLUMES.slice(),
   addLater: false,
   charts: []
@@ -257,10 +257,12 @@ function pointEvents() {
     },
     mouseOver() {
       if (!this.graphic || !this.custom || this.custom.type !== "step") return;
+      if (state.view === "funnel3d") return;
       paintFill(this.graphic, paint(this.custom.step).hover);
     },
     mouseOut() {
       if (!this.graphic || !this.custom || this.custom.type !== "step") return;
+      if (state.view === "funnel3d") return;
       paintFill(this.graphic, paint(this.custom.step).fill);
     }
   };
@@ -345,6 +347,10 @@ function clickPoint(point) {
 }
 
 function shapeLayout() {
+  if (state.view === "funnel3d") {
+    if (state.labels === "inside") return { width: "70%", center: ["50%", "50%"] };
+    return { width: "56%", center: ["34%", "50%"] };
+  }
   if (state.labels === "inside") return { width: "62%", center: ["50%", "50%"] };
   if (state.labels === "side") return { width: "48%", center: ["38%", "50%"] };
   return { width: "52%", center: ["36%", "50%"] };
@@ -427,11 +433,12 @@ function funnelOptions(stages, type, height) {
     animation: false,
     turboThreshold: 0,
     cursor: CURSOR,
-    borderWidth: 1,
-    borderColor: "#fff",
+    borderWidth: is3d ? 0 : 1,
+    borderColor: is3d ? undefined : "#fff",
+    edgeWidth: is3d ? 0 : undefined,
     width: layout.width,
-    height: is3d ? "76%" : "90%",
-    center: is3d ? [layout.center[0], "50%"] : layout.center,
+    height: is3d ? "82%" : "90%",
+    center: layout.center,
     reversed: false,
     neckWidth: `${state.neckWidth}%`,
     neckHeight: `${state.neckHeight}%`,
@@ -460,14 +467,17 @@ function funnelOptions(stages, type, height) {
       type,
       height,
       animation: false,
-      spacing: is3d ? [28, 12, 32, 12] : [8, 8, 8, 8],
+      spacing: is3d ? [20, 16, 24, 16] : [8, 8, 8, 8],
       options3d: is3d
-        ? { enabled: true, alpha: 8, beta: 0, depth: 36, viewDistance: 60 }
-        : undefined,
+        ? { enabled: true, alpha: 10, beta: 0, depth: 50, viewDistance: 50 }
+        : { enabled: false },
       events: {
         render() {
           const chart = this;
-          requestAnimationFrame(() => syncLabels(chart));
+          requestAnimationFrame(() => {
+            if (is3d) requestAnimationFrame(() => syncLabels(chart));
+            else syncLabels(chart);
+          });
         }
       }
     },
@@ -600,12 +610,17 @@ function syncLabels(chart) {
 
   const slices = points.map((point) => {
     const el = graphicEl(point);
-    const face = el && graphicFace(el);
+    if (!el) return { point, el: null, box: null, cy: 0, edge: 0 };
+    if (state.view === "funnel3d") {
+      const box = el.getBoundingClientRect();
+      const cy = box.top + box.height / 2 - frameBox.top;
+      return { point, el, box, cy, edge: box.right - frameBox.left };
+    }
+    const face = graphicFace(el);
     const box = (face || el).getBoundingClientRect();
     const cy = box.top + box.height / 2 - frameBox.top;
     const yAbs = frameBox.top + cy;
-    const edge = el ? rightEdgeAtY(el, yAbs) - frameBox.left : 0;
-    return { point, el, box, cy, edge };
+    return { el, box, cy, edge: rightEdgeAtY(el, yAbs) - frameBox.left, point };
   });
   const colLeft = (slices.length ? Math.max(...slices.map((s) => s.edge)) : 0) + CONNECTOR;
 
@@ -697,7 +712,7 @@ function specBody() {
         : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
   const threeD =
     state.view === "funnel3d"
-      ? "\nchart.options3d: { enabled: true, alpha: 8, beta: 0, depth: 36, viewDistance: 60 }\nseries.height: 76%, extra chart spacing so the 3D cap stays inside the frame\nseries.gradientForSides: true"
+      ? "\nchart.options3d: { enabled: true, alpha: 10, beta: 0, depth: 50, viewDistance: 50 }\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nrecreated on every change (chart.update breaks cuboids)"
       : "";
 
   return `Highcharts 12.5.0
@@ -717,7 +732,7 @@ Height
 
 Volume
   entered: ${volumes}
-  add later stages: ${state.addLater ? "on (each y/label = this stage + all after it)" : "off"}
+  combine: ${state.addLater ? "on (each y/label = this stage + all after it)" : "off"}
   labels/tooltip follow displayed counts
 
 Hover
@@ -810,7 +825,12 @@ function render() {
       ? currentOptions(stages, CHART_HEIGHT)
       : funnelOptions(stages, state.view, CHART_HEIGHT);
   const existing = state.charts[0];
-  if (existing && existing.series[0] && existing.series[0].type === chartType()) {
+  const canUpdate =
+    existing &&
+    existing.series[0] &&
+    existing.series[0].type === chartType() &&
+    state.view !== "funnel3d";
+  if (canUpdate) {
     existing.update(options, true, false, false);
     requestAnimationFrame(() => syncLabels(existing));
     return;
