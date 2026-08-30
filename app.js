@@ -129,6 +129,7 @@ const VIEW_DEFAULTS = {
     splitNumbers: true,
     numberCount: 1,
     volumes: [42, 17, 12, 9, 4, 3, 2, 2],
+    volumeMode: "default",
     addLater: true,
     neckWidth: 32,
     neckHeight: 22
@@ -141,6 +142,7 @@ const VIEW_DEFAULTS = {
     splitNumbers: true,
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
+    volumeMode: "default",
     addLater: false,
     neckWidth: 32,
     neckHeight: 22
@@ -153,6 +155,7 @@ const VIEW_DEFAULTS = {
     splitNumbers: true,
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
+    volumeMode: "default",
     addLater: false,
     neckWidth: 0,
     neckHeight: 0
@@ -165,6 +168,7 @@ const VIEW_DEFAULTS = {
     splitNumbers: true,
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
+    volumeMode: "default",
     addLater: true,
     neckWidth: 0,
     neckHeight: 0
@@ -1334,6 +1338,7 @@ Height
   ${height}
 
 Volume
+  mode: ${state.volumeMode}
   entered: ${volumes}
   combine: ${state.addLater ? "on (later stages are a subset of earlier ones; each y/label = this stage + all after it)" : "off"}
   labels/tooltip follow displayed counts
@@ -1381,6 +1386,29 @@ function randomizeVolumes() {
   state.volumes = STAGES.map(() => Math.floor(Math.random() * (VOLUME_MAX + 1)));
 }
 
+function syncVolumeMode() {
+  document.querySelectorAll("[data-volume-mode]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.volumeMode === state.volumeMode));
+  });
+  const grid = document.getElementById("volume-grid");
+  if (grid) grid.classList.toggle("hidden", state.volumeMode !== "custom");
+}
+
+function setVolumeMode(mode) {
+  if (mode === "random") {
+    randomizeVolumes();
+    state.volumeMode = "random";
+  } else if (mode === "default") {
+    state.volumes = VIEW_DEFAULTS[state.view].volumes.slice();
+    state.volumeMode = "default";
+  } else {
+    state.volumeMode = "custom";
+  }
+  syncVolumeMode();
+  syncVolumeFields();
+  render();
+}
+
 function setVolume(i, n) {
   state.volumes[i] = clampVolume(n);
   syncVolumeFields();
@@ -1396,6 +1424,7 @@ function viewSnapshot() {
     splitNumbers: state.splitNumbers,
     numberCount: state.numberCount,
     volumes: state.volumes.slice(),
+    volumeMode: state.volumeMode,
     addLater: state.addLater,
     neckWidth: state.neckWidth,
     neckHeight: state.neckHeight
@@ -1410,6 +1439,9 @@ function applyViewSettings(saved) {
   state.splitNumbers = saved.splitNumbers;
   state.numberCount = saved.numberCount;
   state.volumes = saved.volumes.slice();
+  state.volumeMode = ["random", "default", "custom"].includes(saved.volumeMode)
+    ? saved.volumeMode
+    : "default";
   state.addLater = saved.addLater;
   state.neckWidth = saved.neckWidth;
   state.neckHeight = saved.neckHeight;
@@ -1432,6 +1464,7 @@ function syncControls() {
   document.getElementById("splitNumbers").checked = state.splitNumbers;
   document.getElementById("addLater").checked = state.addLater;
   document.getElementById("minHeightPx").value = String(state.minHeightPx);
+  syncVolumeMode();
   syncVolumeFields();
 }
 
@@ -1550,15 +1583,21 @@ function bind() {
     if (el.type === "number" && el.value === "") return;
     setVolume(Number(el.dataset.volume), Number(el.value));
   });
-  document.getElementById("volume-reset").addEventListener("click", () => {
-    state.volumes = VIEW_DEFAULTS[state.view].volumes.slice();
-    syncVolumeFields();
-    render();
+  document.querySelectorAll("[data-volume-mode]").forEach((btn) => {
+    btn.addEventListener("click", () => setVolumeMode(btn.dataset.volumeMode));
   });
-  document.getElementById("volume-random").addEventListener("click", () => {
-    randomizeVolumes();
-    syncVolumeFields();
-    render();
+  document.getElementById("spec-copy").addEventListener("click", async () => {
+    const btn = document.getElementById("spec-copy");
+    const text = document.getElementById("spec-body").textContent || "";
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copied";
+    } catch {
+      btn.textContent = "Copy failed";
+    }
+    window.setTimeout(() => {
+      btn.textContent = "Copy";
+    }, 1600);
   });
   document.getElementById("addLater").addEventListener("change", (e) => {
     state.addLater = e.target.checked;

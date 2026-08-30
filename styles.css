@@ -67,9 +67,9 @@ body {
 .panel {
   margin: 0;
   background: #fff;
-  border: 1px solid var(--grey-2);
+  border: 1px solid var(--grey-3);
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: none;
   padding: 16px 20px 20px;
 }
 
@@ -148,6 +148,36 @@ body {
 .hint {
   font-size: 12px;
   color: var(--grey-5);
+}
+
+.spec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 14px;
+}
+
+.spec-head h2 {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.spec-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spec-actions a {
+  color: var(--blue-7);
+  font: 500 13px var(--font);
+  text-decoration: none;
+}
+
+.spec-actions a:hover {
+  text-decoration: underline;
 }
 
 .spec pre {
@@ -282,6 +312,7 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px 16px;
+  margin-top: 12px;
 }
 
 .volume-item {
@@ -298,21 +329,26 @@ body {
   white-space: normal;
 }
 
-.volume-actions {
+#volume-mode-seg {
+  width: 100%;
+}
+
+.combine-label {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin-top: 10px;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 14px;
+  line-height: 1.43;
 }
 
-.volume-combine {
-  display: grid;
-  gap: 6px;
-  margin-top: 12px;
+.combine-label input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
-.volume-combine .hint {
-  max-width: none;
+.combine-name {
+  font-weight: 500;
+  color: var(--grey-9);
 }
 
 .text-btn {
@@ -348,14 +384,15 @@ body {
 
 .widget {
   background: #fff;
-  border: 1px solid var(--grey-2);
+  border: 1px solid var(--grey-3);
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: none;
   padding: 16px 16px 8px;
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1281px) {
   .page {
+    max-width: 1600px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 420px;
     align-items: stretch;
@@ -386,7 +423,7 @@ body {
   }
 }
 
-@media (max-width: 1099px) and (min-width: 720px) {
+@media (max-width: 1280px) and (min-width: 720px) {
   .volume-grid {
     grid-template-columns: 1fr 1fr;
   }

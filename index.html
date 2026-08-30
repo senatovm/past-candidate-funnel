@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=21" />
+  <link rel="stylesheet" href="styles.css?v=22" />
 </head>
 <body>
   <div class="page">
@@ -30,18 +30,16 @@
       <section class="panel" id="volume-panel">
         <h2>Volume</h2>
         <div class="volume-wrap">
-          <div id="volume-grid" class="volume-grid"></div>
-          <div class="volume-actions">
-            <button type="button" class="text-btn" id="volume-reset">Reset to sample</button>
-            <button type="button" class="text-btn" id="volume-random">Randomize values</button>
+          <div class="seg" id="volume-mode-seg" role="tablist" aria-label="Volume source">
+            <button type="button" data-volume-mode="random" aria-pressed="false">Randomize</button>
+            <button type="button" data-volume-mode="default" aria-pressed="true">Default</button>
+            <button type="button" data-volume-mode="custom" aria-pressed="false">Custom</button>
           </div>
-          <div class="volume-combine">
-            <label class="toggle">
-              <input id="addLater" type="checkbox" />
-              Combine
-            </label>
-            <span class="hint">When on, assume people who reached a later stage also went through the earlier ones. A later stage cannot show a higher count than the previous stage.</span>
-          </div>
+          <div id="volume-grid" class="volume-grid hidden"></div>
+          <label class="toggle combine-label">
+            <input id="addLater" type="checkbox" />
+            <span><span class="combine-name">Combine.</span> Assume people who reached a later stage also went through the earlier ones. A later stage cannot show a higher count than the previous stage.</span>
+          </label>
         </div>
       </section>
 
@@ -101,7 +99,13 @@
       </section>
 
       <section class="panel spec" id="spec">
-        <h2>For developers</h2>
+        <div class="spec-head">
+          <h2>For developers</h2>
+          <div class="spec-actions">
+            <button type="button" class="text-btn" id="spec-copy">Copy</button>
+            <a href="https://github.com/senatovm/past-candidate-funnel" target="_blank" rel="noreferrer">Repository</a>
+          </div>
+        </div>
         <pre id="spec-body"></pre>
       </section>
     </div>
@@ -123,6 +127,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=22"></script>
 </body>
 </html>
