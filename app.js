@@ -1587,7 +1587,10 @@ function bind() {
         syncColumnAnno(chart, liveStages());
       });
     } else {
-      state.charts.forEach((chart) => syncLabels(chart));
+      state.charts.forEach((chart) => {
+        if (chart && chart.reflow) chart.reflow();
+        syncLabels(chart);
+      });
     }
   });
   document.getElementById("mask").addEventListener("click", closeDrawer);

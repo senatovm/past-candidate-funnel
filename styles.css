@@ -48,10 +48,20 @@ body {
 .page {
   max-width: 1280px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
 
 .panel {
-  margin-top: 16px;
+  margin: 0;
   background: #fff;
   border: 1px solid var(--grey-2);
   border-radius: 8px;
@@ -68,15 +78,16 @@ body {
 
 .chart-switch {
   display: flex;
-  justify-content: center;
-  padding: 2px 0 14px;
+  justify-content: flex-start;
+  padding: 0 0 14px;
   margin-bottom: 4px;
   border-bottom: 1px solid var(--grey-2);
 }
 
 .chart-switch .seg {
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
+  max-width: 100%;
 }
 
 .btn {
@@ -123,7 +134,7 @@ body {
 }
 
 .setting .k {
-  width: 88px;
+  width: 72px;
   flex-shrink: 0;
   font-size: 13px;
   font-weight: 500;
@@ -168,7 +179,7 @@ body {
 #height-seg,
 #labels-seg {
   flex-wrap: wrap;
-  max-width: 720px;
+  max-width: 100%;
 }
 
 #chart-seg button,
@@ -265,13 +276,13 @@ body {
 
 .volume-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 20px;
+  grid-template-columns: 1fr;
+  gap: 8px 16px;
 }
 
 .volume-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px 64px;
+  grid-template-columns: minmax(72px, 0.9fr) minmax(72px, 1.2fr) 64px;
   align-items: center;
   gap: 8px;
   font-size: 12px;
@@ -294,7 +305,6 @@ body {
   display: grid;
   gap: 6px;
   margin-top: 12px;
-  max-width: 52rem;
 }
 
 .volume-combine .hint {
@@ -338,6 +348,44 @@ body {
   border-radius: 8px;
   box-shadow: var(--shadow);
   padding: 16px 16px 8px;
+}
+
+@media (min-width: 1100px) {
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    align-items: stretch;
+  }
+
+  .page-side {
+    width: 420px;
+  }
+
+  .widget {
+    position: sticky;
+    top: 24px;
+  }
+
+  .page-side .setting {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-side .setting .k {
+    width: auto;
+  }
+
+  .page-side .seg {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+}
+
+@media (max-width: 1099px) and (min-width: 720px) {
+  .volume-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .widget-head {
