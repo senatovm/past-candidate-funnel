@@ -10,7 +10,7 @@ const COLORS = {
 const STAGES = [
   {
     name: "Applied/Added",
-    value: 58,
+    value: 42,
     backgroundColor: COLORS.red[2],
     backgroundColorActive: COLORS.red[3],
     richFill: COLORS.red[3],
@@ -21,7 +21,7 @@ const STAGES = [
   },
   {
     name: "Application screening",
-    value: 123,
+    value: 17,
     backgroundColor: COLORS.orange[2],
     backgroundColorActive: COLORS.orange[3],
     richFill: COLORS.orange[3],
@@ -32,7 +32,7 @@ const STAGES = [
   },
   {
     name: "Screening interviews",
-    value: 133,
+    value: 12,
     backgroundColor: COLORS.yellow[1],
     backgroundColorActive: COLORS.yellow[2],
     richFill: COLORS.yellow[2],
@@ -43,7 +43,7 @@ const STAGES = [
   },
   {
     name: "Assessment",
-    value: 48,
+    value: 9,
     backgroundColor: COLORS.green[1],
     backgroundColorActive: COLORS.green[2],
     richFill: COLORS.green[3],
@@ -103,20 +103,40 @@ const FUNNEL_PLOT_HEIGHT = 360;
 const FUNNEL_RADIUS = 12;
 const VOLUME_MAX = 1000;
 const CURSOR = "nesw-resize";
-const DEFAULT_VOLUMES = STAGES.map((stage) => stage.value);
+
+const PRESETS = {
+  default: {
+    view: "current",
+    neckWidth: 22,
+    neckHeight: 22,
+    heightMode: "equal",
+    minHeightPx: 18,
+    richColor: false,
+    labels: "inside",
+    splitNumbers: true,
+    numberCount: 1,
+    volumes: [42, 17, 12, 9, 4, 3, 2, 2],
+    addLater: true
+  },
+  upgrade: {
+    view: "funnel",
+    neckWidth: 22,
+    neckHeight: 22,
+    heightMode: "floor",
+    minHeightPx: 18,
+    richColor: true,
+    labels: "side",
+    splitNumbers: true,
+    numberCount: 1,
+    volumes: [58, 123, 133, 48, 4, 3, 2, 2],
+    addLater: false
+  }
+};
 
 const state = {
-  view: "funnel",
-  neckWidth: 22,
-  neckHeight: 22,
-  heightMode: "floor",
-  minHeightPx: 18,
-  richColor: true,
-  labels: "side",
-  splitNumbers: true,
-  numberCount: 1,
-  volumes: DEFAULT_VOLUMES.slice(),
-  addLater: false,
+  preset: "default",
+  ...PRESETS.default,
+  volumes: PRESETS.default.volumes.slice(),
   charts: []
 };
 
@@ -444,16 +464,23 @@ function funnelOptions(stages, type, height) {
     neckHeight: `${state.neckHeight}%`,
     dataLabels: { enabled: false },
     point: { events: pointEvents() },
-    states: { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } },
+    states: is3d
+      ? { hover: { enabled: false, halo: false, brightness: 0 }, inactive: { enabled: false, opacity: 1 } }
+      : { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } },
     data: stages.map((stage, i) => {
       const p = paint(stage);
-      return {
+      const row = {
         name: stage.name,
         y: values[i],
         color: p.fill,
-        custom: { type: "step", step: stage },
-        states: { hover: { color: p.hover, brightness: 0 } }
+        custom: { type: "step", step: stage }
       };
+      if (!is3d) {
+        row.states = { hover: { color: p.hover, brightness: 0 } };
+      } else {
+        row.states = { hover: { enabled: false, halo: false, brightness: 0 } };
+      }
+      return row;
     })
   };
   if (!is3d) shape.borderRadius = { radius: FUNNEL_RADIUS, scope: "stack" };
@@ -560,6 +587,32 @@ function rightEdgeAtY(el, yAbs) {
   return maxX;
 }
 
+function spreadYs(centers, heights, minY, maxY) {
+  const n = centers.length;
+  if (!n) return [];
+  const ys = centers.slice();
+  const half = (i) => Math.max(8, heights[i] / 2);
+  for (let i = 1; i < n; i++) {
+    const need = ys[i - 1] + half(i - 1) + half(i) + 4;
+    if (ys[i] < need) ys[i] = need;
+  }
+  const lastBottom = ys[n - 1] + half(n - 1);
+  if (lastBottom > maxY) {
+    const shift = lastBottom - maxY;
+    for (let i = 0; i < n; i++) ys[i] -= shift;
+  }
+  for (let i = n - 2; i >= 0; i--) {
+    const need = ys[i + 1] - half(i) - half(i + 1) - 4;
+    if (ys[i] > need) ys[i] = need;
+  }
+  const firstTop = ys[0] - half(0);
+  if (firstTop < minY) {
+    const shift = minY - firstTop;
+    for (let i = 0; i < n; i++) ys[i] += shift;
+  }
+  return ys;
+}
+
 function drawStripe(svg, x1, y1, x2, y2, color) {
   const ns = "http://www.w3.org/2000/svg";
   const line = document.createElementNS(ns, "line");
@@ -627,37 +680,55 @@ function syncLabels(chart) {
   slices.forEach((slice, i) => {
     const li = list.children[i];
     if (!li || !slice.el) return;
-    const { box, cy, edge } = slice;
+    const { box, edge } = slice;
     const sliceLeft = box.left - frameBox.left;
-    const color = slice.point.custom.step.color;
-
     li.style.transform = "none";
     li.style.right = "auto";
     li.style.width = "auto";
-
     if (mode === "inside") {
       const width = Math.max(48, box.width - 12);
       li.style.left = `${sliceLeft + box.width / 2}px`;
-      li.style.top = `${cy}px`;
       li.style.width = `${width}px`;
-      li.style.transform = "translate(-50%, -50%)";
       li.style.textAlign = "center";
+    } else if (mode === "side") {
+      li.style.left = `${edge + CONNECTOR}px`;
+      li.style.textAlign = "left";
+    } else {
+      li.style.left = `${colLeft}px`;
+      li.style.textAlign = "left";
+    }
+    li.style.top = "0";
+  });
+
+  const heights = [...list.children].map((li) => li.offsetHeight || 16);
+  const placed = spreadYs(
+    slices.map((s) => s.cy),
+    heights,
+    8,
+    frame.clientHeight - 8
+  );
+
+  slices.forEach((slice, i) => {
+    const li = list.children[i];
+    if (!li || !slice.el) return;
+    const { cy, edge } = slice;
+    const ly = placed[i];
+    const color = slice.point.custom.step.color;
+
+    if (mode === "inside") {
+      li.style.top = `${ly}px`;
+      li.style.transform = "translate(-50%, -50%)";
       return;
     }
 
+    li.style.top = `${ly - li.offsetHeight / 2}px`;
     if (mode === "side") {
       const left = edge + CONNECTOR;
-      li.style.left = `${left}px`;
-      li.style.top = `${cy - li.offsetHeight / 2}px`;
-      li.style.textAlign = "left";
-      drawStripe(svg, edge, cy, left - 2, cy, color);
+      drawStripe(svg, edge, cy, left - 2, ly, color);
       return;
     }
 
-    li.style.left = `${colLeft}px`;
-    li.style.top = `${cy - li.offsetHeight / 2}px`;
-    li.style.textAlign = "left";
-    drawStripe(svg, edge, cy, colLeft - 4, cy, color);
+    drawStripe(svg, edge, cy, colLeft - 4, ly, color);
   });
 }
 
@@ -712,7 +783,7 @@ function specBody() {
         : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
   const threeD =
     state.view === "funnel3d"
-      ? "\nchart.options3d: { enabled: true, alpha: 10, beta: 0, depth: 50, viewDistance: 50 }\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nrecreated on every change (chart.update breaks cuboids)"
+      ? "\nchart.options3d: { enabled: true, alpha: 10, beta: 0, depth: 50, viewDistance: 50 }\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nhover visual: off (Highcharts 3D cuboids break on fill change)\nrecreated on every change"
       : "";
 
   return `Highcharts 12.5.0
@@ -804,6 +875,45 @@ function setVolume(i, n) {
   render();
 }
 
+function applyPreset(name, doRender = true) {
+  const preset = PRESETS[name];
+  if (!preset) return;
+  state.preset = name;
+  state.view = preset.view;
+  state.neckWidth = preset.neckWidth;
+  state.neckHeight = preset.neckHeight;
+  state.heightMode = preset.heightMode;
+  state.minHeightPx = preset.minHeightPx;
+  state.richColor = preset.richColor;
+  state.labels = preset.labels;
+  state.splitNumbers = preset.splitNumbers;
+  state.numberCount = preset.numberCount;
+  state.volumes = preset.volumes.slice();
+  state.addLater = preset.addLater;
+  document.querySelectorAll("[data-preset]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.preset === name));
+  });
+  document.querySelectorAll("[data-view]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
+  });
+  document.querySelectorAll("[data-labels]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.labels === state.labels));
+  });
+  document.querySelectorAll("[data-height]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.height === state.heightMode));
+  });
+  document.querySelectorAll("[data-numbers]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(Number(btn.dataset.numbers) === state.numberCount));
+  });
+  document.getElementById("richColor").checked = state.richColor;
+  document.getElementById("splitNumbers").checked = state.splitNumbers;
+  document.getElementById("addLater").checked = state.addLater;
+  document.getElementById("minHeightPx").value = String(state.minHeightPx);
+  syncNeckFields();
+  syncVolumeFields();
+  if (doRender) render();
+}
+
 function chartType() {
   return state.view === "current" ? "columnrange" : state.view;
 }
@@ -841,36 +951,9 @@ function render() {
 
 function bind() {
   const params = new URLSearchParams(location.search);
-  const viewParam = params.get("view") === "pyramid" ? "funnel3d" : params.get("view");
-  if (viewParam && ["current", "funnel", "funnel3d"].includes(viewParam)) {
-    state.view = viewParam;
-  }
-  if (params.get("neck") === "1") {
-    state.neckWidth = 30;
-    state.neckHeight = 25;
-  }
-  if (params.get("neckW")) state.neckWidth = clampPct(Number(params.get("neckW")));
-  if (params.get("neckH")) state.neckHeight = clampPct(Number(params.get("neckH")));
-  if (params.get("v")) {
-    const parts = params.get("v").split(",").map((x) => clampVolume(Number(x)));
-    if (parts.length === STAGES.length) state.volumes = parts;
-  }
-  if (["share", "floor", "equal", "progressive", "progfloor"].includes(params.get("height"))) {
-    state.heightMode = params.get("height");
-  }
-  if (params.get("min")) {
-    const n = Number(params.get("min"));
-    if (Number.isFinite(n)) state.minHeightPx = Math.min(80, Math.max(8, Math.round(n)));
-  }
-  if (params.get("rich") === "0") state.richColor = false;
-  if (["inside", "side", "line"].includes(params.get("labels"))) {
-    state.labels = params.get("labels");
-  }
-  if (params.get("cols") === "0") state.splitNumbers = false;
-  if (params.get("later") === "1") state.addLater = true;
-  if (["1", "2", "3"].includes(params.get("numbers"))) {
-    state.numberCount = Number(params.get("numbers"));
-  }
+  document.querySelectorAll("[data-preset]").forEach((btn) => {
+    btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+  });
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
     btn.addEventListener("click", () => {
@@ -911,12 +994,8 @@ function bind() {
       render();
     });
   });
-  document.getElementById("richColor").checked = state.richColor;
-  document.getElementById("splitNumbers").checked = state.splitNumbers;
-  document.getElementById("addLater").checked = state.addLater;
-  document.getElementById("minHeightPx").value = String(state.minHeightPx);
   renderVolumeGrid();
-  syncNeckFields();
+  applyPreset(params.get("preset") === "upgrade" ? "upgrade" : "default", false);
   document.getElementById("neckWidth").addEventListener("input", (e) => setNeckWidth(Number(e.target.value)));
   document.getElementById("neckWidthNum").addEventListener("input", (e) => {
     if (e.target.value === "") return;
@@ -934,7 +1013,7 @@ function bind() {
     setVolume(Number(el.dataset.volume), Number(el.value));
   });
   document.getElementById("volume-reset").addEventListener("click", () => {
-    state.volumes = DEFAULT_VOLUMES.slice();
+    state.volumes = PRESETS[state.preset].volumes.slice();
     syncVolumeFields();
     render();
   });

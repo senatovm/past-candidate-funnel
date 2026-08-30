@@ -66,6 +66,18 @@ body {
   color: var(--grey-10);
 }
 
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.panel-head h2 {
+  margin: 0;
+}
+
 .setting {
   display: flex;
   flex-wrap: wrap;

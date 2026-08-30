@@ -16,7 +16,7 @@
         <h2>Funnel by stages</h2>
         <svg class="info" viewBox="64 64 896 896" aria-hidden="true"><path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path fill="currentColor" d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"/></svg>
         <label class="toggle header-toggle" title="When on, each stage count is this stage plus every stage after it.">
-          <input id="addLater" type="checkbox" />
+          <input id="addLater" type="checkbox" checked />
           Combine
         </label>
       </div>
@@ -28,20 +28,26 @@
     </section>
 
     <section class="panel" id="settings">
-      <h2>Settings</h2>
+      <div class="panel-head">
+        <h2>Settings</h2>
+        <div class="seg" role="tablist" aria-label="Presets">
+          <button type="button" data-preset="default" aria-pressed="true">Default</button>
+          <button type="button" data-preset="upgrade" aria-pressed="false">Upgrade</button>
+        </div>
+      </div>
       <div class="setting">
         <span class="k">Chart</span>
         <div class="seg" role="tablist" aria-label="Chart variant">
-          <button type="button" data-view="current" aria-pressed="false">Current</button>
-          <button type="button" data-view="funnel" aria-pressed="true">Funnel</button>
+          <button type="button" data-view="current" aria-pressed="true">Current</button>
+          <button type="button" data-view="funnel" aria-pressed="false">Funnel</button>
           <button type="button" data-view="funnel3d" aria-pressed="false">Funnel 3D</button>
         </div>
       </div>
       <div class="setting">
         <span class="k">Labels</span>
         <div class="seg" role="tablist" aria-label="Label placement">
-          <button type="button" data-labels="inside" aria-pressed="false">Inside</button>
-          <button type="button" data-labels="side" aria-pressed="true">Side</button>
+          <button type="button" data-labels="inside" aria-pressed="true">Inside</button>
+          <button type="button" data-labels="side" aria-pressed="false">Side</button>
           <button type="button" data-labels="line" aria-pressed="false">Line</button>
         </div>
       </div>
@@ -50,9 +56,9 @@
         <div class="seg" id="height-seg" role="tablist" aria-label="Slice height">
           <button type="button" data-height="share" aria-pressed="false">Proportional</button>
           <button type="button" data-height="progressive" aria-pressed="false">Progressive</button>
-          <button type="button" data-height="floor" aria-pressed="true">Proportional min height</button>
+          <button type="button" data-height="floor" aria-pressed="false">Proportional min height</button>
           <button type="button" data-height="progfloor" aria-pressed="false">Progressive min height</button>
-          <button type="button" data-height="equal" aria-pressed="false">Equal</button>
+          <button type="button" data-height="equal" aria-pressed="true">Equal</button>
         </div>
         <label class="toggle field" id="minpx-toggle">
           <input id="minHeightPx" type="number" min="8" max="80" value="18" />
@@ -76,7 +82,7 @@
       <div class="setting">
         <span class="k">Style</span>
         <label class="toggle" id="rich-toggle">
-          <input id="richColor" type="checkbox" checked />
+          <input id="richColor" type="checkbox" />
           Rich color
         </label>
       </div>
