@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body>
   <div class="page">
@@ -37,18 +37,20 @@
       </div>
       <div class="setting">
         <span class="k">Chart</span>
-        <div class="seg" role="tablist" aria-label="Chart variant">
+        <div class="seg" id="chart-seg" role="tablist" aria-label="Chart variant">
           <button type="button" data-view="current" aria-pressed="true">Current</button>
           <button type="button" data-view="funnel" aria-pressed="false">Funnel</button>
           <button type="button" data-view="funnel3d" aria-pressed="false">Funnel 3D</button>
+          <button type="button" data-view="horizontal" aria-pressed="false">Horizontal funnel</button>
         </div>
       </div>
       <div class="setting">
         <span class="k">Labels</span>
-        <div class="seg" role="tablist" aria-label="Label placement">
+        <div class="seg" id="labels-seg" role="tablist" aria-label="Label placement">
           <button type="button" data-labels="inside" aria-pressed="true">Inside</button>
           <button type="button" data-labels="side" aria-pressed="false">Side</button>
           <button type="button" data-labels="line" aria-pressed="false">Line</button>
+          <button type="button" data-labels="table" aria-pressed="false">Table</button>
         </div>
       </div>
       <div class="setting">
@@ -101,7 +103,7 @@
             <input id="neckHeightNum" type="number" min="0" max="80" value="22" />
             <span class="unit">%</span>
           </label>
-          <p class="hint">Height 0 is a truncated triangle. Raise it for a bottle.</p>
+          <p class="hint" id="neck-hint">Height 0 is a truncated triangle. Raise it for a bottle.</p>
         </div>
       </div>
       <div class="setting stack" id="tilt-row">
@@ -155,6 +157,7 @@
   <script src="vendor/modules/funnel.js"></script>
   <script src="vendor/modules/cylinder.js"></script>
   <script src="vendor/modules/funnel3d.js"></script>
-  <script src="app.js?v=7"></script>
+  <div id="float-tip" class="float-tip hidden"></div>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

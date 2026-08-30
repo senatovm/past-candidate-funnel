@@ -188,8 +188,20 @@ function paint(stage) {
   return { fill: stage.backgroundColor, hover: stage.backgroundColorActive, border: stage.color };
 }
 
-function pct(n) {
-  return Number.isFinite(n) ? `${Math.round(100 * n)}%` : "";
+function pctFine(n) {
+  if (!Number.isFinite(n)) return "";
+  const v = 100 * n;
+  if (Math.abs(v - Math.round(v)) < 0.05) return `${Math.round(v)}%`;
+  return `${v.toFixed(1)}%`;
+}
+
+function hexAlpha(hex, a) {
+  const n = String(hex || "").replace("#", "");
+  if (n.length !== 6) return `rgba(34, 37, 51, ${a})`;
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
 function ratio(n) {
@@ -372,6 +384,10 @@ function clickPoint(point) {
 }
 
 function shapeLayout() {
+  if (state.labels === "table") {
+    if (state.view === "funnel3d") return { width: "72%", center: ["50%", "50%"] };
+    return { width: "88%", center: ["50%", "50%"] };
+  }
   if (state.view === "funnel3d") {
     if (state.labels === "inside") return { width: "70%", center: ["50%", "50%"] };
     return { width: "56%", center: ["34%", "50%"] };
@@ -379,6 +395,10 @@ function shapeLayout() {
   if (state.labels === "inside") return { width: "62%", center: ["50%", "50%"] };
   if (state.labels === "side") return { width: "48%", center: ["38%", "50%"] };
   return { width: "52%", center: ["36%", "50%"] };
+}
+
+function tableGutters() {
+  return { left: 176, right: 136 };
 }
 
 function currentOptions(stages, height) {
@@ -402,6 +422,9 @@ function currentOptions(stages, height) {
     };
   });
 
+  const table = state.labels === "table";
+  const gutters = tableGutters();
+
   return {
     credits: { enabled: false },
     exporting: { enabled: false },
@@ -411,7 +434,8 @@ function currentOptions(stages, height) {
       inverted: true,
       height,
       animation: false,
-      marginRight: state.labels === "inside" ? 12 : 210,
+      marginLeft: table ? gutters.left : 10,
+      marginRight: table ? gutters.right : state.labels === "inside" ? 12 : 210,
       events: {
         render() {
           const chart = this;
@@ -492,6 +516,16 @@ function funnelOptions(stages, type, height) {
   if (!is3d) shape.borderRadius = { radius: FUNNEL_RADIUS, scope: "stack" };
   if (is3d) shape.gradientForSides = true;
 
+  const table = state.labels === "table";
+  const gutters = tableGutters();
+  const spacing = is3d
+    ? table
+      ? [20, gutters.right, 24, gutters.left]
+      : [20, 16, 24, 16]
+    : table
+      ? [8, gutters.right, 8, gutters.left]
+      : [8, 8, 8, 8];
+
   return {
     credits: { enabled: false },
     exporting: { enabled: false },
@@ -500,7 +534,7 @@ function funnelOptions(stages, type, height) {
       type,
       height,
       animation: false,
-      spacing: is3d ? [20, 16, 24, 16] : [8, 8, 8, 8],
+      spacing,
       options3d: is3d
         ? {
             enabled: true,
@@ -655,7 +689,205 @@ function drawStripe(svg, x1, y1, x2, y2, color) {
 
 const CONNECTOR = 12;
 
+function drawTableRule(svg, y, width) {
+  const ns = "http://www.w3.org/2000/svg";
+  const line = document.createElementNS(ns, "line");
+  line.setAttribute("x1", "0");
+  line.setAttribute("y1", String(y));
+  line.setAttribute("x2", String(width));
+  line.setAttribute("y2", String(y));
+  line.setAttribute("stroke", "#E1E3EA");
+  line.setAttribute("stroke-width", "1");
+  svg.appendChild(line);
+}
+
+function floatTip() {
+  return document.getElementById("float-tip");
+}
+
+function showFloatTip(html, x, y) {
+  const tip = floatTip();
+  if (!tip) return;
+  tip.innerHTML = html;
+  tip.classList.remove("hidden");
+  const pad = 14;
+  const w = tip.offsetWidth;
+  const h = tip.offsetHeight;
+  let left = x + pad;
+  let top = y + pad;
+  if (left + w > window.innerWidth - 8) left = x - w - pad;
+  if (top + h > window.innerHeight - 8) top = y - h - pad;
+  tip.style.left = `${Math.max(8, left)}px`;
+  tip.style.top = `${Math.max(8, top)}px`;
+}
+
+function hideFloatTip() {
+  const tip = floatTip();
+  if (!tip) return;
+  tip.classList.add("hidden");
+  tip.innerHTML = "";
+}
+
+function streamBand(x0, x1, top0, top1, bot0, bot1) {
+  const mx = (x0 + x1) / 2;
+  return `M ${x0} ${top0} C ${mx} ${top0}, ${mx} ${top1}, ${x1} ${top1} L ${x1} ${bot1} C ${mx} ${bot1}, ${mx} ${bot0}, ${x0} ${bot0} Z`;
+}
+
+function renderHorizontal(container, stages) {
+  const n = stages.length;
+  const extra = (stage) => {
+    if (state.numberCount === 1) return "";
+    const bits = [];
+    if (state.numberCount >= 2 && stage.passValuePercent !== undefined) bits.push(pct(stage.passValuePercent));
+    if (state.numberCount >= 3 && stage.dropOffValuePercent !== undefined) bits.push(pct(stage.dropOffValuePercent));
+    return bits.length ? `<div class="extra">${bits.join(" · ")}</div>` : "";
+  };
+  container.innerHTML = `
+    <div class="hfunnel">
+      <div class="hfunnel-head">
+        ${stages
+          .map(
+            (stage, i) => `<button type="button" class="hfunnel-col" data-hstage="${i}" title="${stage.name}">
+              <div class="meta">
+                <span class="swatch" style="background:${stage.color}"></span>
+                <span class="label">${stage.name}</span>
+              </div>
+              <div class="value">${stage.value}</div>
+              ${extra(stage)}
+            </button>`
+          )
+          .join("")}
+      </div>
+      <div class="hfunnel-body">
+        <div class="hfunnel-grid">${stages.map(() => "<span></span>").join("")}</div>
+        <svg class="hfunnel-svg"></svg>
+        <div class="hfunnel-pills"></div>
+      </div>
+    </div>`;
+  layoutHorizontal(container, stages);
+  bindHorizontal(container, stages);
+}
+
+function layoutHorizontal(container, stages) {
+  const body = container.querySelector(".hfunnel-body");
+  const svg = container.querySelector(".hfunnel-svg");
+  const pills = container.querySelector(".hfunnel-pills");
+  if (!body || !svg || !pills) return;
+  const w = Math.max(1, body.clientWidth);
+  const h = Math.max(1, body.clientHeight);
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.setAttribute("width", String(w));
+  svg.setAttribute("height", String(h));
+  const ns = "http://www.w3.org/2000/svg";
+  svg.innerHTML = "";
+  pills.innerHTML = "";
+
+  const weights = displayYs(stages.map((s) => s.value));
+  const maxW = Math.max(...weights, 1);
+  const maxThick = Math.max(24, Math.min(h * 0.72, h - 28));
+  const minThick = Math.max(14, maxThick * (state.neckWidth / 100));
+  const thick = (i) => minThick + (maxThick - minThick) * (weights[i] / maxW);
+  const cy = h / 2;
+  const colW = w / stages.length;
+  const first = stages[0].value;
+  const lastI = stages.length - 1;
+
+  const glow = document.createElementNS(ns, "g");
+  const core = document.createElementNS(ns, "g");
+  svg.appendChild(glow);
+  svg.appendChild(core);
+
+  stages.forEach((stage, i) => {
+    const x0 = i * colW;
+    const x1 = (i + 1) * colW;
+    const t0 = thick(i);
+    const t1 = i < lastI ? thick(i + 1) : t0;
+    const top0 = cy - t0 / 2;
+    const bot0 = cy + t0 / 2;
+    const top1 = cy - t1 / 2;
+    const bot1 = cy + t1 / 2;
+    const fill = state.richColor ? stage.richFill : stage.color;
+    [18, 10].forEach((pad, gi) => {
+      const path = document.createElementNS(ns, "path");
+      path.setAttribute(
+        "d",
+        streamBand(x0, x1, top0 - pad, top1 - pad, bot0 + pad, bot1 + pad)
+      );
+      path.setAttribute("fill", hexAlpha(fill, gi === 0 ? 0.1 : 0.2));
+      path.setAttribute("pointer-events", "none");
+      glow.appendChild(path);
+    });
+    const band = document.createElementNS(ns, "path");
+    band.setAttribute("d", streamBand(x0, x1, top0, top1, bot0, bot1));
+    band.setAttribute("fill", fill);
+    band.setAttribute("class", "hfunnel-core");
+    band.setAttribute("data-hstage", String(i));
+    band.setAttribute("data-fill", fill);
+    core.appendChild(band);
+
+    const share = first ? stage.value / first : NaN;
+    const pill = document.createElement("span");
+    pill.className = "hfunnel-pill";
+    pill.textContent = pctFine(share);
+    pill.style.left = `${x0 + colW / 2}px`;
+    pill.style.top = `${cy}px`;
+    pills.appendChild(pill);
+  });
+
+  const lastFill = state.richColor ? stages[lastI].richFill : stages[lastI].color;
+  const lastT = thick(lastI);
+  const capX = w;
+  const addCap = (parent, pad, fill, interactive) => {
+    const r = lastT / 2 + pad;
+    const cap = document.createElementNS(ns, "path");
+    cap.setAttribute("d", `M ${capX} ${cy - r} A ${r} ${r} 0 0 1 ${capX} ${cy + r} Z`);
+    cap.setAttribute("fill", fill);
+    if (interactive) {
+      cap.setAttribute("class", "hfunnel-core");
+      cap.setAttribute("data-hstage", String(lastI));
+      cap.setAttribute("data-fill", lastFill);
+    } else {
+      cap.setAttribute("pointer-events", "none");
+    }
+    parent.appendChild(cap);
+  };
+  addCap(glow, 18, hexAlpha(lastFill, 0.1), false);
+  addCap(glow, 10, hexAlpha(lastFill, 0.2), false);
+  addCap(core, 0, lastFill, true);
+}
+
+function bindHorizontal(container, stages) {
+  const setHot = (i, on) => {
+    const stage = stages[i];
+    const cores = container.querySelectorAll(`.hfunnel-core[data-hstage="${i}"]`);
+    const col = container.querySelector(`.hfunnel-col[data-hstage="${i}"]`);
+    if (col) col.classList.toggle("is-hot", on);
+    cores.forEach((core) => {
+      const base = core.getAttribute("data-fill");
+      const hot = state.richColor ? stage.richHover : stage.richFill;
+      core.setAttribute("fill", on ? hot : base);
+    });
+  };
+  container.querySelectorAll("[data-hstage]").forEach((el) => {
+    const i = Number(el.dataset.hstage);
+    const stage = stages[i];
+    el.addEventListener("mouseenter", (e) => {
+      setHot(i, true);
+      showFloatTip(tooltipHtml(stage), e.clientX, e.clientY);
+    });
+    el.addEventListener("mousemove", (e) => {
+      showFloatTip(tooltipHtml(stage), e.clientX, e.clientY);
+    });
+    el.addEventListener("mouseleave", () => {
+      setHot(i, false);
+      hideFloatTip();
+    });
+    el.addEventListener("click", () => openDrawer(stage));
+  });
+}
+
 function syncLabels(chart) {
+  if (state.view === "horizontal") return;
   if (!chart || !chart.series || !chart.series[0] || !chart.series[0].points) return;
   const frame = chart.renderTo && chart.renderTo.closest && chart.renderTo.closest(".chart-frame");
   const list = frame && frame.querySelector(".label-col");
@@ -670,6 +902,9 @@ function syncLabels(chart) {
   list.innerHTML = points
     .map((point) => {
       const stage = point.custom.step;
+      if (mode === "table") {
+        return `<li class="hc-name" data-stage="${stage.name}"><span class="hc-row-name">${stage.name}</span><span></span>${stageNumsHtml(stage)}</li>`;
+      }
       return `<li class="hc-name" data-stage="${stage.name}">${stageLabelHtml(stage)}</li>`;
     })
     .join("");
@@ -703,6 +938,32 @@ function syncLabels(chart) {
     const yAbs = frameBox.top + cy;
     return { el, box, cy, edge: rightEdgeAtY(el, yAbs) - frameBox.left, point };
   });
+
+  if (mode === "table") {
+    slices.forEach((slice, i) => {
+      const li = list.children[i];
+      if (!li || !slice.el) return;
+      const top = slice.box.top - frameBox.top;
+      li.style.left = "0";
+      li.style.right = "0";
+      li.style.width = "100%";
+      li.style.top = `${top}px`;
+      li.style.height = `${slice.box.height}px`;
+      li.style.transform = "none";
+      li.style.textAlign = "left";
+    });
+    const ready = slices.filter((s) => s.box);
+    if (ready.length) {
+      drawTableRule(svg, ready[0].box.top - frameBox.top, frame.clientWidth);
+      for (let i = 0; i < ready.length - 1; i++) {
+        const y = (ready[i].box.bottom + ready[i + 1].box.top) / 2 - frameBox.top;
+        drawTableRule(svg, y, frame.clientWidth);
+      }
+      drawTableRule(svg, ready[ready.length - 1].box.bottom - frameBox.top, frame.clientWidth);
+    }
+    return;
+  }
+
   const colLeft = (slices.length ? Math.max(...slices.map((s) => s.edge)) : 0) + CONNECTOR;
 
   slices.forEach((slice, i) => {
@@ -765,35 +1026,50 @@ function destroyCharts() {
     if (chart && chart.destroy) chart.destroy();
   });
   state.charts = [];
+  hideFloatTip();
+  const el = document.getElementById("chart-main");
+  if (el) el.innerHTML = "";
 }
 
 function specBody() {
   const type =
-    state.view === "current" ? "columnrange (inverted)" : state.view === "funnel3d" ? "funnel3d" : "funnel";
+    state.view === "current"
+      ? "columnrange (inverted)"
+      : state.view === "funnel3d"
+        ? "funnel3d"
+        : state.view === "horizontal"
+          ? "custom SVG stream (not Highcharts)"
+          : "funnel";
   const modules =
     state.view === "current"
       ? "highcharts.js, highcharts-more.js"
       : state.view === "funnel3d"
         ? "highcharts.js, highcharts-3d.js, modules/cylinder.js, modules/funnel3d.js"
-        : "highcharts.js, modules/funnel.js";
+        : state.view === "horizontal"
+          ? "none. Horizontal funnel is custom SVG. Highcharts has no horizontal funnel series."
+          : "highcharts.js, modules/funnel.js";
   const height =
     state.view === "current"
       ? "equal bar height (production). Width encodes count."
-      : state.heightMode === "equal"
-        ? "equal slice height. Silhouette still tapers. Pass y=1 for every stage."
-        : state.heightMode === "share"
-          ? "raw y = count (linear / arithmetic). Thin stages (Hired=2) become a sliver."
-          : state.heightMode === "progressive"
-            ? "y = sqrt(count). Order stays, 42 vs 2 is ~4.6× height instead of 21×."
-            : state.heightMode === "progfloor"
-              ? `progressive + min height: y = sqrt(count), then reserve 8 × ${state.minHeightPx}px and split leftover by compressed share.`
-              : `proportional min height: reserve 8 × ${state.minHeightPx}px, leftover plot (~${FUNNEL_PLOT_HEIGHT}px) split by count. Highcharts y is adjusted.`;
+      : state.view === "horizontal"
+        ? `stream thickness uses Height mode (${state.heightMode}). Each stage is an equal-width column.`
+        : state.heightMode === "equal"
+          ? "equal slice height. Silhouette still tapers. Pass y=1 for every stage."
+          : state.heightMode === "share"
+            ? "raw y = count (linear / arithmetic). Thin stages (Hired=2) become a sliver."
+            : state.heightMode === "progressive"
+              ? "y = sqrt(count). Order stays, 42 vs 2 is ~4.6× height instead of 21×."
+              : state.heightMode === "progfloor"
+                ? `progressive + min height: y = sqrt(count), then reserve 8 × ${state.minHeightPx}px and split leftover by compressed share.`
+                : `proportional min height: reserve 8 × ${state.minHeightPx}px, leftover plot (~${FUNNEL_PLOT_HEIGHT}px) split by count. Highcharts y is adjusted.`;
   const neck =
-    state.view === "current"
-      ? "n/a"
-      : `neckWidth: '${state.neckWidth}%', neckHeight: '${state.neckHeight}%'${
+    state.view === "funnel" || state.view === "funnel3d"
+      ? `neckWidth: '${state.neckWidth}%', neckHeight: '${state.neckHeight}%'${
           state.neckHeight === 0 ? " (truncated triangle)" : " (bottle)"
-        }`;
+        }`
+      : state.view === "horizontal"
+        ? `blunt end: last column stays at last-stage thickness, floor ${state.neckWidth}% of max. Rounded cap. Never tapers to a point.`
+        : "n/a";
   const radius =
     state.view === "funnel"
       ? `borderRadius: { radius: ${FUNNEL_RADIUS}, scope: 'stack' } (outer silhouette)`
@@ -804,11 +1080,15 @@ function specBody() {
   const labelNums =
     state.numberCount === 1 ? "count" : state.numberCount === 2 ? "count + pass %" : "count + pass % + drop %";
   const labels =
-    state.labels === "inside"
-      ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
-      : state.labels === "side"
-        ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
-        : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
+    state.view === "horizontal"
+      ? "column headers: name + count. White pills: share of first stage. Labels control is off."
+      : state.labels === "inside"
+        ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
+        : state.labels === "side"
+          ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
+          : state.labels === "table"
+            ? "full-width row rules through the plot. Name left, chart center, count/% right. Vertically centered in the slice."
+            : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
   const threeD =
     state.view === "funnel3d"
       ? `\nchart.options3d: { enabled: true, alpha: ${state.alpha}, beta: ${state.beta}, depth: 50, viewDistance: 50, fitToPlot: false }\nframe: off (default left plot wall drew a false border)\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nhover visual: off\nrecreated on every change`
@@ -991,16 +1271,34 @@ function chartType() {
 
 function render() {
   const stages = liveStages();
+  const host = document.getElementById("chart-main");
+  const frame = document.getElementById("single");
+  const horizontal = state.view === "horizontal";
   document.getElementById("spec-body").textContent = specBody();
   document.getElementById("numbers-hint").textContent = numbersHint();
   document.getElementById("height-hint").textContent = heightHint();
   document.getElementById("neck-row").dataset.disabled =
-    state.view === "funnel" || state.view === "funnel3d" ? "false" : "true";
+    state.view === "funnel" || state.view === "funnel3d" || horizontal ? "false" : "true";
+  const neckHint = document.getElementById("neck-hint");
+  if (neckHint) {
+    neckHint.textContent = horizontal
+      ? "Width is the blunt right end. The stream never comes to a point."
+      : "Height 0 is a truncated triangle. Raise it for a bottle.";
+  }
   document.getElementById("tilt-row").dataset.disabled = state.view === "funnel3d" ? "false" : "true";
   document.getElementById("height-seg").dataset.disabled = state.view === "current" ? "true" : "false";
+  document.getElementById("labels-seg").dataset.disabled = horizontal ? "true" : "false";
   document.getElementById("minpx-toggle").dataset.disabled =
     state.view === "current" || !usesMinHeight() ? "true" : "false";
-  document.getElementById("cols-toggle").dataset.disabled = state.labels === "line" ? "false" : "true";
+  document.getElementById("cols-toggle").dataset.disabled = state.labels === "line" && !horizontal ? "false" : "true";
+  frame.classList.toggle("is-horizontal", horizontal);
+  host.classList.toggle("is-horizontal", horizontal);
+
+  if (horizontal) {
+    destroyCharts();
+    renderHorizontal(host, stages);
+    return;
+  }
 
   const options =
     state.view === "current"
@@ -1010,6 +1308,7 @@ function render() {
   const rebuild =
     state.forceRebuild ||
     state.view === "funnel3d" ||
+    state.labels === "table" ||
     !existing ||
     !existing.series[0] ||
     existing.series[0].type !== chartType();
@@ -1045,6 +1344,7 @@ function bind() {
     btn.setAttribute("aria-pressed", String(btn.dataset.labels === state.labels));
     btn.addEventListener("click", () => {
       state.labels = btn.dataset.labels;
+      state.forceRebuild = true;
       document.querySelectorAll("[data-labels]").forEach((b) => {
         b.setAttribute("aria-pressed", String(b === btn));
       });
@@ -1123,7 +1423,8 @@ function bind() {
     if (usesMinHeight()) render();
   });
   window.addEventListener("resize", () => {
-    state.charts.forEach((chart) => syncLabels(chart));
+    if (state.view === "horizontal") render();
+    else state.charts.forEach((chart) => syncLabels(chart));
   });
   document.getElementById("mask").addEventListener("click", closeDrawer);
   document.getElementById("drawer-close").addEventListener("click", closeDrawer);

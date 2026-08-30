@@ -168,11 +168,15 @@ body {
   cursor: pointer;
 }
 
-#height-seg {
+#chart-seg,
+#height-seg,
+#labels-seg {
   flex-wrap: wrap;
   max-width: 720px;
 }
 
+#chart-seg button,
+#labels-seg button,
 #height-seg button {
   padding: 7px 10px;
 }
@@ -362,6 +366,156 @@ body {
   height: 400px;
 }
 
+.chart-frame.is-horizontal .label-col,
+.chart-frame.is-horizontal .label-lines {
+  display: none;
+}
+
+.hfunnel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.hfunnel-head {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  border-bottom: 1px solid var(--grey-2);
+}
+
+.hfunnel-col {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 10px 12px;
+  border: 0;
+  border-left: 1px solid var(--grey-2);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: nesw-resize;
+}
+
+.hfunnel-col:first-child {
+  border-left: 0;
+}
+
+.hfunnel-col.is-hot {
+  background: var(--grey-1);
+}
+
+.hfunnel-col .meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hfunnel-col .swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.hfunnel-col .label {
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--grey-7);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hfunnel-col .value {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--grey-10);
+  font-variant-numeric: tabular-nums;
+}
+
+.hfunnel-col .extra {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--grey-5);
+  font-variant-numeric: tabular-nums;
+}
+
+.hfunnel-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.hfunnel-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hfunnel-grid span {
+  border-left: 1px solid var(--grey-2);
+}
+
+.hfunnel-grid span:first-child {
+  border-left: 0;
+}
+
+.hfunnel-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.hfunnel-core {
+  cursor: nesw-resize;
+}
+
+.hfunnel-pills {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hfunnel-pill {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font: 500 12px var(--font);
+  color: var(--grey-9);
+  box-shadow: 0 1px 2px rgba(0, 22, 54, 0.08);
+  font-variant-numeric: tabular-nums;
+}
+
+.float-tip {
+  position: fixed;
+  z-index: 40;
+  pointer-events: none;
+  background: #fff;
+  border: 1px solid var(--grey-2);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  max-width: 360px;
+}
+
 .label-lines {
   position: absolute;
   inset: 0;
@@ -397,7 +551,8 @@ body {
 }
 
 .label-col.label-side li,
-.label-col.label-line li {
+.label-col.label-line li,
+.label-col.label-table li {
   pointer-events: auto;
   cursor: nesw-resize;
 }
@@ -413,6 +568,43 @@ body {
 .hc-name[data-stage] {
   pointer-events: auto;
   cursor: nesw-resize;
+}
+
+.label-col.label-table {
+  pointer-events: none;
+}
+
+.label-col.label-table li {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) max-content;
+  align-items: center;
+  column-gap: 12px;
+  left: 0;
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.label-col.label-table .hc-row-name,
+.label-col.label-table .hc-nums {
+  pointer-events: auto;
+  cursor: nesw-resize;
+}
+
+.label-col.label-table .hc-row-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 500 12px var(--font);
+  color: var(--grey-9);
+}
+
+.label-col.label-table .hc-nums {
+  justify-content: flex-end;
+  text-align: right;
 }
 
 .label-col.label-line.label-split li {
