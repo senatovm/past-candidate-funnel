@@ -140,6 +140,18 @@ const VIEW_DEFAULTS = {
     addLater: false,
     neckWidth: 0,
     neckHeight: 0
+  },
+  columns: {
+    labels: "inside",
+    heightMode: "share",
+    minHeightPx: 16,
+    richColor: true,
+    splitNumbers: true,
+    numberCount: 1,
+    volumes: [250, 123, 133, 48, 4, 3, 2, 2],
+    addLater: false,
+    neckWidth: 0,
+    neckHeight: 0
   }
 };
 
@@ -150,7 +162,8 @@ const state = {
   byView: {
     current: { ...VIEW_DEFAULTS.current, volumes: VIEW_DEFAULTS.current.volumes.slice() },
     funnel: { ...VIEW_DEFAULTS.funnel, volumes: VIEW_DEFAULTS.funnel.volumes.slice() },
-    horizontal: { ...VIEW_DEFAULTS.horizontal, volumes: VIEW_DEFAULTS.horizontal.volumes.slice() }
+    horizontal: { ...VIEW_DEFAULTS.horizontal, volumes: VIEW_DEFAULTS.horizontal.volumes.slice() },
+    columns: { ...VIEW_DEFAULTS.columns, volumes: VIEW_DEFAULTS.columns.volumes.slice() }
   },
   charts: [],
   forceRebuild: false
@@ -206,6 +219,11 @@ function ribbonPaint(stage) {
 
 function usesLabelOverlay() {
   return state.view === "current" || state.view === "funnel";
+}
+
+function pct(n) {
+  if (!Number.isFinite(n)) return "";
+  return `${Math.round(100 * n)}%`;
 }
 
 function pctFine(n) {
@@ -539,6 +557,169 @@ function funnelOptions(stages, height) {
     legend: { enabled: false },
     tooltip: sharedTooltip(),
     series: [shape]
+  };
+}
+
+function clearBridges(chart) {
+  if (!chart || !chart.bridgeShapes) return;
+  chart.bridgeShapes.forEach((el) => {
+    if (el && el.destroy) el.destroy();
+  });
+  chart.bridgeShapes = [];
+}
+
+function drawColumnBridges(chart) {
+  clearBridges(chart);
+  if (!chart || !chart.renderer || !chart.series[0]) return;
+  const points = chart.series[0].points.filter((p) => p.shapeArgs);
+  if (points.length < 2) return;
+  chart.bridgeShapes = [];
+  const base = chart.plotTop + points[0].shapeArgs.y + points[0].shapeArgs.height;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i].shapeArgs;
+    const b = points[i + 1].shapeArgs;
+    const x1 = chart.plotLeft + a.x + a.width;
+    const y1 = chart.plotTop + a.y;
+    const x2 = chart.plotLeft + b.x;
+    const y2 = chart.plotTop + b.y;
+    const fill = chart.renderer
+      .path(["M", x1, y1, "L", x2, y2, "L", x2, base, "L", x1, base, "Z"])
+      .attr({
+        fill: "rgba(34, 37, 51, 0.06)",
+        zIndex: 0
+      })
+      .add();
+    const slope = chart.renderer
+      .path(["M", x1, y1, "L", x2, y2])
+      .attr({
+        stroke: "#8B93B4",
+        "stroke-width": 1,
+        "stroke-dasharray": "2,4",
+        fill: "none",
+        zIndex: 1
+      })
+      .add();
+    chart.bridgeShapes.push(fill, slope);
+  }
+  if (chart.series[0].group && chart.series[0].group.toFront) {
+    chart.series[0].group.toFront();
+  }
+}
+
+function syncColumnAnno(chart, stages) {
+  const anno = document.getElementById("col-anno");
+  if (!anno || !chart || !chart.series[0]) return;
+  const points = chart.series[0].points;
+  const bits = [];
+  points.forEach((point, i) => {
+    const a = point.shapeArgs;
+    if (!a) return;
+    const stage = stages[i];
+    const left = chart.plotLeft + a.x;
+    const top = chart.plotTop + chart.plotHeight + 6;
+    bits.push(`<button type="button" class="col-foot" data-cstage="${i}" title="${stage.name}" style="left:${left}px;width:${a.width}px;top:${top}px">
+      <span class="val">${stage.value}</span>
+      <span class="name">${stage.name}</span>
+    </button>`);
+  });
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i].shapeArgs;
+    const b = points[i + 1].shapeArgs;
+    if (!a || !b) continue;
+    const x1 = chart.plotLeft + a.x + a.width;
+    const x2 = chart.plotLeft + b.x;
+    const y1 = chart.plotTop + a.y;
+    const y2 = chart.plotTop + b.y;
+    const base = chart.plotTop + a.y + a.height;
+    const midX = (x1 + x2) / 2;
+    const midY = Math.min((Math.min(y1, y2) + base) / 2, chart.plotTop + chart.plotHeight - 16);
+    const rate = stages[i].passValuePercent;
+    bits.push(`<span class="col-rate" style="left:${midX}px;top:${midY}px">${pct(rate)}</span>`);
+  }
+  anno.innerHTML = bits.join("");
+  anno.classList.remove("hidden");
+}
+
+function hideColumnAnno() {
+  const anno = document.getElementById("col-anno");
+  if (!anno) return;
+  anno.classList.add("hidden");
+  anno.innerHTML = "";
+}
+
+function columnFunnelOptions(stages, height) {
+  const values = displayYs(stages.map((s) => s.value));
+  return {
+    credits: { enabled: false },
+    exporting: { enabled: false },
+    accessibility: { enabled: false },
+    chart: {
+      type: "column",
+      height,
+      animation: false,
+      backgroundColor: "transparent",
+      marginTop: 16,
+      marginRight: 10,
+      marginBottom: 84,
+      marginLeft: 10,
+      events: {
+        render() {
+          const chart = this;
+          requestAnimationFrame(() => {
+            drawColumnBridges(chart);
+            syncColumnAnno(chart, stages);
+          });
+        }
+      }
+    },
+    title: { text: undefined },
+    legend: { enabled: false },
+    xAxis: {
+      categories: stages.map((s) => s.name),
+      lineWidth: 0,
+      tickLength: 0,
+      labels: { enabled: false }
+    },
+    yAxis: {
+      visible: false,
+      min: 0,
+      startOnTick: false,
+      endOnTick: false,
+      maxPadding: 0.08
+    },
+    tooltip: sharedTooltip(),
+    plotOptions: {
+      column: {
+        animation: false,
+        cursor: CURSOR,
+        borderWidth: 0,
+        borderRadius: 0,
+        grouping: false,
+        pointPadding: 0.04,
+        groupPadding: 0.16,
+        crisp: false,
+        states: { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } }
+      }
+    },
+    series: [
+      {
+        type: "column",
+        name: "Reached",
+        turboThreshold: 0,
+        dataLabels: { enabled: false },
+        point: { events: pointEvents() },
+        data: stages.map((stage, i) => {
+          const p = paint(stage);
+          return {
+            y: values[i],
+            name: stage.name,
+            color: p.fill,
+            custom: { type: "step", step: stage },
+            states: { hover: { color: p.hover, brightness: 0 } }
+          };
+        })
+      }
+    ]
   };
 }
 
@@ -985,10 +1166,14 @@ function syncLabels(chart) {
 
 function destroyCharts() {
   state.charts.forEach((chart) => {
-    if (chart && chart.destroy) chart.destroy();
+    if (chart && chart.destroy) {
+      clearBridges(chart);
+      chart.destroy();
+    }
   });
   state.charts = [];
   hideFloatTip();
+  hideColumnAnno();
   const el = document.getElementById("chart-main");
   if (el) el.innerHTML = "";
 }
@@ -999,25 +1184,31 @@ function specBody() {
       ? "columnrange (inverted)"
       : state.view === "horizontal"
         ? "custom SVG stream (not Highcharts)"
-        : "funnel";
+        : state.view === "columns"
+          ? "column"
+          : "funnel";
   const modules =
     state.view === "current"
       ? "highcharts.js, highcharts-more.js"
       : state.view === "horizontal"
         ? "none. Horizontal funnel is custom SVG. Highcharts has no horizontal funnel series."
-        : "highcharts.js, modules/funnel.js";
+        : state.view === "columns"
+          ? "highcharts.js. Bridges are chart.renderer.path on render. No extra module."
+          : "highcharts.js, modules/funnel.js";
   const height =
     state.view === "current"
       ? "equal bar height (production). Width encodes count."
       : state.view === "horizontal"
         ? `stream thickness uses Height mode (${state.heightMode}). Each stage is an equal-width column.`
-        : state.heightMode === "share"
-          ? "raw y = count (linear / arithmetic). Thin stages (Hired=2) become a sliver."
-          : state.heightMode === "progressive"
-            ? "y = sqrt(count). Order stays, 42 vs 2 is ~4.6× height instead of 21×."
-            : state.heightMode === "progfloor"
-              ? `progressive + min height: y = sqrt(count), then reserve 8 × ${state.minHeightPx}px and split leftover by compressed share.`
-              : `proportional min height: reserve 8 × ${state.minHeightPx}px, leftover plot (~${FUNNEL_PLOT_HEIGHT}px) split by count. Highcharts y is adjusted.`;
+        : state.view === "columns"
+          ? `column height uses Height mode (${state.heightMode}). Equal-width bars. Gray trapezoid + dotted slope fill the gap.`
+          : state.heightMode === "share"
+            ? "raw y = count (linear / arithmetic). Thin stages (Hired=2) become a sliver."
+            : state.heightMode === "progressive"
+              ? "y = sqrt(count). Order stays, 42 vs 2 is ~4.6× height instead of 21×."
+              : state.heightMode === "progfloor"
+                ? `progressive + min height: y = sqrt(count), then reserve 8 × ${state.minHeightPx}px and split leftover by compressed share.`
+                : `proportional min height: reserve 8 × ${state.minHeightPx}px, leftover plot (~${FUNNEL_PLOT_HEIGHT}px) split by count. Highcharts y is adjusted.`;
   const neck =
     state.view === "funnel"
       ? `neckWidth: '${state.neckWidth}%', neckHeight: '${state.neckHeight}%'${
@@ -1025,11 +1216,15 @@ function specBody() {
         }`
       : state.view === "horizontal"
         ? "blunt end: last column stays at last-stage thickness, floor 0% of max. Rounded cap. Never tapers to a point."
-        : "n/a";
+        : state.view === "columns"
+          ? "n/a. Gap between bars is the drop-off. Slope can go up if the next stage is larger."
+          : "n/a";
   const radius =
     state.view === "funnel"
       ? `borderRadius: { radius: ${FUNNEL_RADIUS}, scope: 'stack' } (outer silhouette)`
-      : "n/a";
+      : state.view === "columns"
+        ? "borderRadius: 0 (square bars, LinkedIn-style)"
+        : "n/a";
   const volumes = `${state.volumes.join(", ")}${
     state.addLater ? ` → stacked ${stackedVolumes().join(", ")}` : ""
   }`;
@@ -1038,13 +1233,15 @@ function specBody() {
   const labels =
     state.view === "horizontal"
       ? "column headers: name + count. White pills: share of first stage."
-      : state.labels === "inside"
-        ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
-        : state.labels === "side"
-          ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
-          : state.labels === "table"
-            ? "row rules behind the chart (inner dividers only). Name left, chart center, count/% right."
-            : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
+      : state.view === "columns"
+        ? "under each bar: count + name. In the gap: pass % (this stage → next). Highcharts dataLabels off."
+        : state.labels === "inside"
+          ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
+          : state.labels === "side"
+            ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
+            : state.labels === "table"
+              ? "row rules behind the chart (inner dividers only). Name left, chart center, count/% right."
+              : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
 
   return `Highcharts 12.5.0
 modules: ${modules}
@@ -1172,6 +1369,7 @@ function switchView(view) {
 function chartType() {
   if (state.view === "current") return "columnrange";
   if (state.view === "funnel") return "funnel";
+  if (state.view === "columns") return "column";
   return state.view;
 }
 
@@ -1186,19 +1384,22 @@ function render() {
   const frame = document.getElementById("single");
   const horizontal = state.view === "horizontal";
   const funnel = state.view === "funnel";
+  const columns = state.view === "columns";
   const overlay = usesLabelOverlay();
   document.getElementById("spec-body").textContent = specBody();
   document.getElementById("numbers-hint").textContent = numbersHint();
   document.getElementById("height-hint").textContent = heightHint();
   setShown("labels-row", overlay);
-  setShown("height-row", funnel || horizontal);
+  setShown("height-row", funnel || horizontal || columns);
   setShown("numbers-row", overlay);
-  setShown("minpx-toggle", (funnel || horizontal) && usesMinHeight());
+  setShown("minpx-toggle", (funnel || horizontal || columns) && usesMinHeight());
   setShown("cols-toggle", overlay && state.labels === "line");
   frame.classList.toggle("is-horizontal", horizontal);
+  frame.classList.toggle("is-columns", columns);
   frame.classList.toggle("is-table", overlay && state.labels === "table");
   host.classList.toggle("is-horizontal", horizontal);
   if (!overlay) hideLabelOverlay(frame);
+  if (!columns) hideColumnAnno();
 
   if (horizontal) {
     destroyCharts();
@@ -1207,7 +1408,11 @@ function render() {
   }
 
   const options =
-    state.view === "current" ? currentOptions(stages, CHART_HEIGHT) : funnelOptions(stages, CHART_HEIGHT);
+    state.view === "current"
+      ? currentOptions(stages, CHART_HEIGHT)
+      : state.view === "columns"
+        ? columnFunnelOptions(stages, CHART_HEIGHT)
+        : funnelOptions(stages, CHART_HEIGHT);
   const existing = state.charts[0];
   const rebuild =
     state.forceRebuild ||
@@ -1290,10 +1495,24 @@ function bind() {
   });
   window.addEventListener("resize", () => {
     if (state.view === "horizontal") render();
-    else state.charts.forEach((chart) => syncLabels(chart));
+    else if (state.view === "columns") {
+      state.charts.forEach((chart) => {
+        if (chart && chart.reflow) chart.reflow();
+        drawColumnBridges(chart);
+        syncColumnAnno(chart, liveStages());
+      });
+    } else {
+      state.charts.forEach((chart) => syncLabels(chart));
+    }
   });
   document.getElementById("mask").addEventListener("click", closeDrawer);
   document.getElementById("drawer-close").addEventListener("click", closeDrawer);
+  document.getElementById("col-anno").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-cstage]");
+    if (!btn) return;
+    const stage = liveStages()[Number(btn.dataset.cstage)];
+    if (stage) openDrawer(stage);
+  });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeDrawer();
   });

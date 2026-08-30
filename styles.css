@@ -367,8 +367,57 @@ body {
 }
 
 .chart-frame.is-horizontal .label-col,
-.chart-frame.is-horizontal .label-lines {
+.chart-frame.is-horizontal .label-lines,
+.chart-frame.is-columns .label-col,
+.chart-frame.is-columns .label-lines {
   display: none;
+}
+
+.col-anno {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.col-foot {
+  position: absolute;
+  appearance: none;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+  cursor: nesw-resize;
+  pointer-events: auto;
+  min-width: 0;
+}
+
+.col-foot .val {
+  display: block;
+  font: 600 13px var(--font);
+  color: var(--grey-9);
+  font-variant-numeric: tabular-nums;
+}
+
+.col-foot .name {
+  display: block;
+  font: 500 11px var(--font);
+  color: var(--grey-7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.col-rate {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font: 600 12px var(--font);
+  color: var(--grey-7);
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
 }
 
 .hfunnel {
@@ -814,7 +863,8 @@ body {
   cursor: nesw-resize;
 }
 
-.highcharts-funnel-series .highcharts-point-hover {
+.highcharts-funnel-series .highcharts-point-hover,
+.highcharts-column-series .highcharts-point-hover {
   stroke: none;
 }
 

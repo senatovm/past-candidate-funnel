@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body>
   <div class="page">
@@ -22,6 +22,7 @@
       </div>
       <div id="single" class="chart-frame">
         <div id="chart-main" class="chart"></div>
+        <div id="col-anno" class="col-anno hidden" aria-hidden="true"></div>
         <svg class="label-lines" aria-hidden="true"></svg>
         <ul id="labels-main" class="label-col hidden"></ul>
       </div>
@@ -32,6 +33,7 @@
         <div class="seg" id="chart-seg" role="tablist" aria-label="Chart variant">
           <button type="button" data-view="current" aria-pressed="false">Current (columnrange)</button>
           <button type="button" data-view="funnel" aria-pressed="true">Funnel</button>
+          <button type="button" data-view="columns" aria-pressed="false">Column funnel</button>
           <button type="button" data-view="horizontal" aria-pressed="false">Horizontal funnel (custom)</button>
         </div>
       </div>
@@ -109,6 +111,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>
