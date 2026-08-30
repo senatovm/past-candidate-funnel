@@ -2,8 +2,29 @@ const COLORS = {
   red: { 1: "#FFF5F7", 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#E23B55", 7: "#C42B45" },
   orange: { 1: "#FFF7ED", 2: "#FFEFDC", 3: "#FFDEBA", 5: "#E67600", 6: "#D15F00" },
   yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500", 5: "#C49A00" },
-  green: { 1: "#EFFAF7", 2: "#E0F4EE", 3: "#C7EBE1", 4: "#66CAAF", 5: "#3AA686", 6: "#1F7A64", 7: "#0E6352", 9: "#032C24" },
-  blue: { 1: "#F5F9FF", 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 6: "#2372E2", 7: "#0B5AD4", 8: "#003785" },
+  green: {
+    1: "#EFFAF7",
+    2: "#E0F4EE",
+    3: "#C7EBE1",
+    4: "#66CAAF",
+    5: "#2DA68B",
+    6: "#2F836E",
+    7: "#0E6352",
+    8: "#054338",
+    9: "#032C24",
+    10: "#021B17"
+  },
+  blue: {
+    1: "#F5F9FF",
+    2: "#E9F2FF",
+    3: "#D0E4FF",
+    4: "#8EBAF8",
+    6: "#2372E2",
+    7: "#004ECB",
+    8: "#003785",
+    9: "#002457",
+    10: "#001636"
+  },
   grey: { 3: "#E1E3EA", 9: "#222533" }
 };
 
@@ -65,9 +86,9 @@ const STAGES = [
     value: 4,
     backgroundColor: COLORS.green[2],
     backgroundColorActive: COLORS.green[3],
-    richFill: COLORS.green[6],
-    richHover: COLORS.green[7],
-    color: COLORS.green[6],
+    richFill: COLORS.green[7],
+    richHover: COLORS.green[8],
+    color: COLORS.green[7],
     tint100: COLORS.green[1],
     tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Advanced interviews stage",
@@ -78,9 +99,9 @@ const STAGES = [
     value: 3,
     backgroundColor: COLORS.green[3],
     backgroundColorActive: COLORS.green[4],
-    richFill: COLORS.green[6],
-    richHover: COLORS.green[7],
-    color: COLORS.green[6],
+    richFill: COLORS.green[9],
+    richHover: COLORS.green[10],
+    color: COLORS.green[9],
     tint100: COLORS.green[1],
     tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Reference stage",
@@ -104,9 +125,9 @@ const STAGES = [
     value: 2,
     backgroundColor: COLORS.blue[2],
     backgroundColorActive: COLORS.blue[3],
-    richFill: COLORS.blue[6],
-    richHover: COLORS.blue[8],
-    color: COLORS.blue[6],
+    richFill: COLORS.blue[8],
+    richHover: COLORS.blue[9],
+    color: COLORS.blue[8],
     tint100: COLORS.blue[1],
     tint200: COLORS.blue[2],
     reportTitle: "hired candidates",
@@ -119,6 +140,20 @@ const FUNNEL_PLOT_HEIGHT = 360;
 const FUNNEL_RADIUS = 12;
 const VOLUME_MAX = 1000;
 const CURSOR = "nesw-resize";
+const VOLUME_RANGES = {
+  "Applied/Added": [50, 1000],
+  "Application screening": [50, 1000],
+  "Screening interviews": [50, 1000],
+  Assessment: [0, 500],
+  "Advanced interviews": [0, 500],
+  Reference: [0, 500],
+  Offer: [0, 50],
+  Hired: [0, 50]
+};
+
+function randomIn(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
 
 const VIEW_DEFAULTS = {
   current: {
@@ -1347,7 +1382,7 @@ Hover
 Labels
   ${labels}
   numbers shown: ${state.numberCount} → ${labelNums}
-  fills: ${state.richColor ? "rich tokens (step 5–6)" : "production pale tokens (step 1–2)"}
+  fills: ${state.richColor ? "rich tokens, same hue at least 2 steps apart" : "production pale tokens (step 1–2)"}
 
 Click
   point.click → openDrawer({ reportTitle })
@@ -1378,7 +1413,10 @@ function renderVolumeGrid() {
 }
 
 function randomizeVolumes() {
-  state.volumes = STAGES.map(() => Math.floor(Math.random() * (VOLUME_MAX + 1)));
+  state.volumes = STAGES.map((stage) => {
+    const range = VOLUME_RANGES[stage.name] || [0, VOLUME_MAX];
+    return randomIn(range[0], range[1]);
+  });
 }
 
 function setVolume(i, n) {
