@@ -53,6 +53,10 @@ body {
   gap: 16px;
 }
 
+.page-chart {
+  min-width: 0;
+}
+
 .page-side {
   display: flex;
   flex-direction: column;
