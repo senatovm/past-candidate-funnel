@@ -1,10 +1,10 @@
 const COLORS = {
-  red: { 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#E23B55", 7: "#C42B45" },
-  orange: { 2: "#FFEFDC", 3: "#FFDEBA", 5: "#E67600", 6: "#D15F00" },
+  red: { 1: "#FFF5F7", 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#E23B55", 7: "#C42B45" },
+  orange: { 1: "#FFF7ED", 2: "#FFEFDC", 3: "#FFDEBA", 5: "#E67600", 6: "#D15F00" },
   yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500", 5: "#C49A00" },
   green: { 1: "#EFFAF7", 2: "#E0F4EE", 3: "#C7EBE1", 4: "#66CAAF", 5: "#3AA686", 6: "#1F7A64", 7: "#0E6352", 9: "#032C24" },
-  blue: { 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 6: "#2372E2", 7: "#0B5AD4", 8: "#003785" },
-  grey: { 9: "#222533" }
+  blue: { 1: "#F5F9FF", 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 6: "#2372E2", 7: "#0B5AD4", 8: "#003785" },
+  grey: { 3: "#E1E3EA", 9: "#222533" }
 };
 
 const STAGES = [
@@ -16,6 +16,8 @@ const STAGES = [
     richFill: COLORS.red[5],
     richHover: COLORS.red[6],
     color: COLORS.red[5],
+    tint100: COLORS.red[1],
+    tint200: COLORS.red[2],
     reportTitle: "Apply/added candidates",
     candidates: ["Jeanette J. Gipson", "Emilio N. Snyder", "Julia J. Speaks", "Franklin B. Cronin"]
   },
@@ -27,6 +29,8 @@ const STAGES = [
     richFill: COLORS.orange[5],
     richHover: COLORS.orange[6],
     color: COLORS.orange[5],
+    tint100: COLORS.orange[1],
+    tint200: COLORS.orange[2],
     reportTitle: "candidates who completed a step in Application screening stage",
     candidates: ["Jeanette J. Gipson", "Emilio N. Snyder", "Wilma T. Hill"]
   },
@@ -38,6 +42,8 @@ const STAGES = [
     richFill: COLORS.yellow[4],
     richHover: COLORS.yellow[5],
     color: COLORS.yellow[4],
+    tint100: COLORS.yellow[1],
+    tint200: COLORS.yellow[2],
     reportTitle: "candidates who completed a step in Screening interviews stage",
     candidates: ["Jeanette J. Gipson", "Thomas B. Stainbrook"]
   },
@@ -49,6 +55,8 @@ const STAGES = [
     richFill: COLORS.green[5],
     richHover: COLORS.green[6],
     color: COLORS.green[5],
+    tint100: COLORS.green[1],
+    tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Assessment stage",
     candidates: ["Jeanette J. Gipson", "Vera J. Johnson"]
   },
@@ -60,6 +68,8 @@ const STAGES = [
     richFill: COLORS.green[6],
     richHover: COLORS.green[7],
     color: COLORS.green[6],
+    tint100: COLORS.green[1],
+    tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Advanced interviews stage",
     candidates: ["Jeanette J. Gipson", "Toni R. Roberson"]
   },
@@ -71,6 +81,8 @@ const STAGES = [
     richFill: COLORS.green[6],
     richHover: COLORS.green[7],
     color: COLORS.green[6],
+    tint100: COLORS.green[1],
+    tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Reference stage",
     candidates: ["Jeanette J. Gipson"]
   },
@@ -82,6 +94,8 @@ const STAGES = [
     richFill: COLORS.blue[6],
     richHover: COLORS.blue[7],
     color: COLORS.blue[6],
+    tint100: COLORS.blue[1],
+    tint200: COLORS.blue[2],
     reportTitle: "candidates who completed a step in Offer stage",
     candidates: ["Jeanette J. Gipson"]
   },
@@ -93,6 +107,8 @@ const STAGES = [
     richFill: COLORS.blue[6],
     richHover: COLORS.blue[8],
     color: COLORS.blue[6],
+    tint100: COLORS.blue[1],
+    tint200: COLORS.blue[2],
     reportTitle: "hired candidates",
     candidates: ["Jeanette J. Gipson"]
   }
@@ -116,7 +132,7 @@ const VIEW_DEFAULTS = {
     addLater: true,
     neckWidth: 32,
     neckHeight: 22,
-    tablePreset: "1"
+    tablePreset: "100"
   },
   funnel: {
     labels: "table",
@@ -129,7 +145,7 @@ const VIEW_DEFAULTS = {
     addLater: false,
     neckWidth: 32,
     neckHeight: 22,
-    tablePreset: "1"
+    tablePreset: "100"
   },
   horizontal: {
     labels: "inside",
@@ -142,7 +158,7 @@ const VIEW_DEFAULTS = {
     addLater: false,
     neckWidth: 0,
     neckHeight: 0,
-    tablePreset: "1"
+    tablePreset: "100"
   },
   columns: {
     labels: "inside",
@@ -155,180 +171,47 @@ const VIEW_DEFAULTS = {
     addLater: false,
     neckWidth: 0,
     neckHeight: 0,
-    tablePreset: "1"
+    tablePreset: "100"
   }
+};
+
+const TABLE_CLOSE = {
+  left: 96,
+  right: 48,
+  nameW: 88,
+  padX: 4,
+  width: "94%"
 };
 
 const TABLE_PRESETS = [
   {
-    id: "1",
-    name: "T1 Now",
-    hint: "Current: gray 1px rules, fade, no row fill. Text almost at the funnel.",
-    left: 112,
-    right: 64,
-    nameW: 104,
-    padX: 6,
-    width: "92%",
-    fade: true,
+    id: "100",
+    name: "Tint 100",
+    hint: "Row fill is stage color 100. Strong next to the funnel, fades out to the edges. Names and counts hug the chart.",
+    ...TABLE_CLOSE,
+    fade: "out",
+    fill: "100",
+    rule: "none"
+  },
+  {
+    id: "200",
+    name: "Tint 200",
+    hint: "Same as Tint 100, but stage color 200 (one step stronger).",
+    ...TABLE_CLOSE,
+    fade: "out",
+    fill: "200",
+    rule: "none"
+  },
+  {
+    id: "lines",
+    name: "Gray 300",
+    hint: "Standard: grey-300 rules, full opacity, no fade. Names and counts hug the chart.",
+    ...TABLE_CLOSE,
+    fade: "none",
     fill: "none",
-    a: "",
-    b: "",
     rule: "line",
-    ruleColor: "#E1E3EA",
+    ruleColor: COLORS.grey[3],
     ruleW: 1
-  },
-  {
-    id: "2",
-    name: "T2 Close",
-    hint: "Text 8px from the funnel. Same gray hairline as now.",
-    left: 84,
-    right: 48,
-    nameW: 76,
-    padX: 4,
-    width: "96%",
-    fade: true,
-    fill: "none",
-    a: "",
-    b: "",
-    rule: "line",
-    ruleColor: "#E1E3EA",
-    ruleW: 1
-  },
-  {
-    id: "3",
-    name: "T3 Far",
-    hint: "Text sits farther out. Same gray hairline. Names get more room.",
-    left: 176,
-    right: 104,
-    nameW: 148,
-    padX: 12,
-    width: "86%",
-    fade: true,
-    fill: "none",
-    a: "",
-    b: "",
-    rule: "line",
-    ruleColor: "#E1E3EA",
-    ruleW: 1
-  },
-  {
-    id: "4",
-    name: "T4 Wash",
-    hint: "One fill: all rows grey-1. White 2px seams. Minor, even.",
-    left: 112,
-    right: 64,
-    nameW: 104,
-    padX: 8,
-    width: "92%",
-    fade: true,
-    fill: "wash",
-    a: "#F8F8FB",
-    b: "#F8F8FB",
-    rule: "white",
-    ruleColor: "#FFFFFF",
-    ruleW: 2
-  },
-  {
-    id: "5",
-    name: "T5 Zebra",
-    hint: "One extra fill: odd rows grey-1, even white. White 1px seams.",
-    left: 112,
-    right: 64,
-    nameW: 104,
-    padX: 8,
-    width: "92%",
-    fade: true,
-    fill: "zebra",
-    a: "#F8F8FB",
-    b: "#FFFFFF",
-    rule: "white",
-    ruleColor: "#FFFFFF",
-    ruleW: 1
-  },
-  {
-    id: "6",
-    name: "T6 Two-tone",
-    hint: "Two fills: grey-1 and blue-1. White 1px seams. Separation is tint, not a line.",
-    left: 112,
-    right: 64,
-    nameW: 104,
-    padX: 8,
-    width: "92%",
-    fade: true,
-    fill: "zebra",
-    a: "#F8F8FB",
-    b: "#F5F9FF",
-    rule: "white",
-    ruleColor: "#FFFFFF",
-    ruleW: 1
-  },
-  {
-    id: "7",
-    name: "T7 Bands",
-    hint: "Divider is a filled 6px grey strip, not a 1px line. No row fill.",
-    left: 112,
-    right: 64,
-    nameW: 104,
-    padX: 6,
-    width: "92%",
-    fade: true,
-    fill: "none",
-    a: "",
-    b: "",
-    rule: "band",
-    ruleColor: "#EFF0F4",
-    ruleW: 6
-  },
-  {
-    id: "8",
-    name: "T8 Ticks",
-    hint: "Rules only in the name and count columns. Nothing behind the funnel.",
-    left: 120,
-    right: 72,
-    nameW: 108,
-    padX: 8,
-    width: "90%",
-    fade: false,
-    fill: "none",
-    a: "",
-    b: "",
-    rule: "gutter",
-    ruleColor: "#E1E3EA",
-    ruleW: 1
-  },
-  {
-    id: "9",
-    name: "T9 Close+tone",
-    hint: "Close text + two-tone fill + white seams. Compact gutters.",
-    left: 84,
-    right: 48,
-    nameW: 76,
-    padX: 4,
-    width: "96%",
-    fade: true,
-    fill: "zebra",
-    a: "#F8F8FB",
-    b: "#F5F9FF",
-    rule: "white",
-    ruleColor: "#FFFFFF",
-    ruleW: 1
-  },
-  {
-    id: "10",
-    name: "T10 Soft far",
-    hint: "Far text, one pale wash, white 2px seams. Quietest density.",
-    left: 160,
-    right: 96,
-    nameW: 136,
-    padX: 14,
-    width: "88%",
-    fade: true,
-    fill: "wash",
-    a: "#FAFBFD",
-    b: "#FAFBFD",
-    rule: "white",
-    ruleColor: "#FFFFFF",
-    ruleW: 2
   }
 ];
 
@@ -623,7 +506,7 @@ function applyTableVars(frame) {
 
 function applyTableMask(svg, frame, preset) {
   if (!svg) return;
-  if (!preset.fade) {
+  if (preset.fade !== "out") {
     svg.style.maskImage = "none";
     svg.style.webkitMaskImage = "none";
     return;
@@ -631,8 +514,7 @@ function applyTableMask(svg, frame, preset) {
   const w = Math.max(1, frame.clientWidth);
   const l = (preset.left / w) * 100;
   const r = (preset.right / w) * 100;
-  const fade = Math.max(4, Math.min(12, 100 / 12));
-  const img = `linear-gradient(90deg, #000 0%, #000 ${l.toFixed(2)}%, transparent ${(l + fade).toFixed(2)}%, transparent ${(100 - r - fade).toFixed(2)}%, #000 ${(100 - r).toFixed(2)}%, #000 100%)`;
+  const img = `linear-gradient(90deg, transparent 0%, #000 ${l.toFixed(2)}%, #000 ${(100 - r).toFixed(2)}%, transparent 100%)`;
   svg.style.maskImage = img;
   svg.style.webkitMaskImage = img;
 }
@@ -641,9 +523,11 @@ function paintTableChrome(svg, slices, frame, frameBox, preset) {
   const ns = "http://www.w3.org/2000/svg";
   const width = frame.clientWidth;
   const ready = slices.filter((s) => s.box);
-  ready.forEach((slice, i) => {
+  ready.forEach((slice) => {
     if (preset.fill === "none") return;
-    const fill = preset.fill === "zebra" ? (i % 2 === 0 ? preset.a : preset.b) : preset.a;
+    const stage = slice.point && slice.point.custom && slice.point.custom.step;
+    const fill = preset.fill === "200" ? stage && stage.tint200 : stage && stage.tint100;
+    if (!fill) return;
     const rect = document.createElementNS(ns, "rect");
     rect.setAttribute("x", "0");
     rect.setAttribute("y", String(slice.box.top - frameBox.top));
@@ -652,39 +536,9 @@ function paintTableChrome(svg, slices, frame, frameBox, preset) {
     rect.setAttribute("fill", fill);
     svg.appendChild(rect);
   });
+  if (preset.rule !== "line") return;
   for (let i = 0; i < ready.length - 1; i++) {
     const y = (ready[i].box.bottom + ready[i + 1].box.top) / 2 - frameBox.top;
-    if (preset.rule === "none") continue;
-    if (preset.rule === "gutter") {
-      const leftEnd = Math.max(8, preset.left - 8);
-      const rightStart = Math.max(leftEnd + 8, width - preset.right + 8);
-      [
-        [0, leftEnd],
-        [rightStart, width]
-      ].forEach(([x1, x2]) => {
-        const line = document.createElementNS(ns, "line");
-        line.setAttribute("x1", String(x1));
-        line.setAttribute("y1", String(y));
-        line.setAttribute("x2", String(x2));
-        line.setAttribute("y2", String(y));
-        line.setAttribute("stroke", preset.ruleColor);
-        line.setAttribute("stroke-width", String(preset.ruleW));
-        line.setAttribute("stroke-linecap", "square");
-        svg.appendChild(line);
-      });
-      continue;
-    }
-    if (preset.rule === "band") {
-      const h = preset.ruleW;
-      const rect = document.createElementNS(ns, "rect");
-      rect.setAttribute("x", "0");
-      rect.setAttribute("y", String(y - h / 2));
-      rect.setAttribute("width", String(width));
-      rect.setAttribute("height", String(h));
-      rect.setAttribute("fill", preset.ruleColor);
-      svg.appendChild(rect);
-      continue;
-    }
     const line = document.createElementNS(ns, "line");
     line.setAttribute("x1", "0");
     line.setAttribute("y1", String(y));
@@ -1605,7 +1459,9 @@ function applyViewSettings(saved) {
   state.addLater = saved.addLater;
   state.neckWidth = saved.neckWidth;
   state.neckHeight = saved.neckHeight;
-  state.tablePreset = saved.tablePreset || "1";
+  state.tablePreset = ["100", "200", "lines"].includes(saved.tablePreset)
+    ? saved.tablePreset
+    : "100";
 }
 
 function syncControls() {
