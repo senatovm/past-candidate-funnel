@@ -736,7 +736,7 @@ body {
 
 .label-col.label-table li {
   display: grid;
-  grid-template-columns: var(--table-name-w, max-content) minmax(0, 1fr) max-content;
+  grid-template-columns: var(--table-side-w, max-content) minmax(0, 1fr) var(--table-side-w, max-content);
   align-items: center;
   column-gap: 8px;
   left: 0;

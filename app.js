@@ -151,7 +151,7 @@ const VIEW_DEFAULTS = {
   },
   funnel: {
     labels: "table",
-    heightMode: "progfloor",
+    heightMode: "floor",
     minHeightPx: 24,
     richColor: true,
     splitNumbers: true,
@@ -531,13 +531,18 @@ function shapeLayout() {
   return { width: "52%", center: ["36%", "50%"] };
 }
 
+function tableSideWidth() {
+  return Math.max(tableNameWidth(), tableNumWidth());
+}
+
 function tableGutters() {
-  return { left: tableNameWidth() + 8, right: tableNumWidth() + 8 };
+  const side = tableSideWidth() + 8;
+  return { left: side, right: side };
 }
 
 function applyTableVars(frame) {
   if (!frame) return;
-  frame.style.setProperty("--table-name-w", `${tableNameWidth()}px`);
+  frame.style.setProperty("--table-side-w", `${tableSideWidth()}px`);
 }
 
 function paintTableChrome(svg, slices, frame, frameBox) {
@@ -636,7 +641,7 @@ function funnelOptions(stages, height) {
   const gutters = tableGutters();
   const shape = {
     type: "funnel",
-    name: "Funnel",
+    name: "Vertical funnel",
     animation: false,
     turboThreshold: 0,
     cursor: CURSOR,
@@ -1319,7 +1324,7 @@ function specBody() {
         ? "custom SVG stream (not Highcharts)"
         : state.view === "columns"
           ? "column"
-          : "funnel";
+          : "vertical funnel";
   const modules =
     state.view === "current"
       ? "highcharts.js, highcharts-more.js"
@@ -1373,7 +1378,7 @@ function specBody() {
           : state.labels === "side"
             ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
             : state.labels === "table"
-              ? "grey-300 rules, full opacity, no fade. Name flush left edge, count flush right edge. 8px gap to the silhouette only."
+              ? "grey-300 rules, full opacity, no fade. Equal left/right gutters: max(name, nums) + 8px. Name left, count right. Silhouette centered."
               : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
 
   return `Highcharts 12.5.0
