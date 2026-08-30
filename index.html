@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
   <div class="page">
@@ -30,9 +30,9 @@
     <section class="panel" id="settings">
       <div class="panel-head">
         <h2>Settings</h2>
-        <div class="seg" role="tablist" aria-label="Presets">
-          <button type="button" id="preset-default" data-preset="default" aria-pressed="true">Default</button>
-          <button type="button" id="preset-upgrade" data-preset="upgrade" aria-pressed="false">Upgrade</button>
+        <div class="preset-actions">
+          <button type="button" class="btn" id="preset-default" title="Reset every setting to the production chart">Default</button>
+          <button type="button" class="btn" id="preset-upgrade" title="Reset every setting to the proposed funnel">Upgrade</button>
         </div>
       </div>
       <div class="setting">
@@ -104,6 +104,24 @@
           <p class="hint">Height 0 is a truncated triangle. Raise it for a bottle.</p>
         </div>
       </div>
+      <div class="setting stack" id="tilt-row">
+        <span class="k">Tilt</span>
+        <div class="sliders">
+          <label class="slide">
+            <span>Alpha</span>
+            <input id="tiltAlpha" type="range" min="-20" max="45" value="10" />
+            <input id="tiltAlphaNum" type="number" min="-20" max="45" value="10" />
+            <span class="unit">°</span>
+          </label>
+          <label class="slide">
+            <span>Beta</span>
+            <input id="tiltBeta" type="range" min="-45" max="45" value="0" />
+            <input id="tiltBetaNum" type="number" min="-45" max="45" value="0" />
+            <span class="unit">°</span>
+          </label>
+          <p class="hint">Alpha tilts up and down. Beta turns left and right.</p>
+        </div>
+      </div>
       <div class="setting stack">
         <span class="k">Volume</span>
         <div class="volume-wrap">
@@ -137,6 +155,6 @@
   <script src="vendor/modules/funnel.js"></script>
   <script src="vendor/modules/cylinder.js"></script>
   <script src="vendor/modules/funnel3d.js"></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

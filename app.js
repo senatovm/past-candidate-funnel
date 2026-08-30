@@ -116,7 +116,9 @@ const PRESETS = {
     splitNumbers: true,
     numberCount: 1,
     volumes: [42, 17, 12, 9, 4, 3, 2, 2],
-    addLater: true
+    addLater: true,
+    alpha: 10,
+    beta: 0
   },
   upgrade: {
     view: "funnel",
@@ -129,7 +131,9 @@ const PRESETS = {
     splitNumbers: true,
     numberCount: 1,
     volumes: [58, 123, 133, 48, 4, 3, 2, 2],
-    addLater: false
+    addLater: false,
+    alpha: 10,
+    beta: 0
   }
 };
 
@@ -456,7 +460,8 @@ function funnelOptions(stages, type, height) {
     cursor: CURSOR,
     borderWidth: is3d ? 0 : 1,
     borderColor: is3d ? undefined : "#fff",
-    edgeWidth: is3d ? 0 : undefined,
+    edgeWidth: 0,
+    edgeColor: "rgba(0,0,0,0)",
     width: layout.width,
     height: is3d ? "82%" : "90%",
     center: layout.center,
@@ -497,14 +502,35 @@ function funnelOptions(stages, type, height) {
       animation: false,
       spacing: is3d ? [20, 16, 24, 16] : [8, 8, 8, 8],
       options3d: is3d
-        ? { enabled: true, alpha: 10, beta: 0, depth: 50, viewDistance: 50 }
+        ? {
+            enabled: true,
+            alpha: state.alpha,
+            beta: state.beta,
+            depth: 50,
+            viewDistance: 50,
+            fitToPlot: false,
+            frame: {
+              visible: false,
+              size: 0,
+              left: { size: 0, color: "transparent", visible: false },
+              right: { size: 0, color: "transparent", visible: false },
+              front: { size: 0, color: "transparent", visible: false },
+              back: { size: 0, color: "transparent", visible: false },
+              top: { size: 0, color: "transparent", visible: false },
+              bottom: { size: 0, color: "transparent", visible: false }
+            }
+          }
         : { enabled: false },
       events: {
         render() {
           const chart = this;
           requestAnimationFrame(() => {
-            if (is3d) requestAnimationFrame(() => syncLabels(chart));
-            else syncLabels(chart);
+            if (is3d) {
+              strip3dEdges(chart);
+              requestAnimationFrame(() => syncLabels(chart));
+            } else {
+              syncLabels(chart);
+            }
           });
         }
       }
@@ -785,7 +811,7 @@ function specBody() {
         : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
   const threeD =
     state.view === "funnel3d"
-      ? "\nchart.options3d: { enabled: true, alpha: 10, beta: 0, depth: 50, viewDistance: 50 }\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nhover visual: off (Highcharts 3D cuboids break on fill change)\nrecreated on every change"
+      ? `\nchart.options3d: { enabled: true, alpha: ${state.alpha}, beta: ${state.beta}, depth: 50, viewDistance: 50, fitToPlot: false }\nframe: off (default left plot wall drew a false border)\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nhover visual: off\nrecreated on every change`
       : "";
 
   return `Highcharts 12.5.0
@@ -829,6 +855,29 @@ function clampPct(n) {
   return Math.min(80, Math.max(0, Math.round(n)));
 }
 
+function clampAngle(n, min, max) {
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
+
+function strip3dEdges(chart) {
+  if (!chart || !chart.container) return;
+  chart.container.querySelectorAll("[class*='highcharts-3d-frame']").forEach((el) => {
+    el.style.display = "none";
+    el.setAttribute("stroke", "none");
+    el.setAttribute("fill", "none");
+  });
+  if (chart.frameShapes) {
+    Object.values(chart.frameShapes).forEach((shape) => {
+      if (shape && typeof shape.hide === "function") shape.hide();
+    });
+  }
+  chart.container.querySelectorAll(".highcharts-funnel3d-series path, .highcharts-funnel3d-series polygon").forEach((el) => {
+    el.setAttribute("stroke", "none");
+    el.setAttribute("stroke-width", "0");
+  });
+}
+
 function clampVolume(n) {
   if (!Number.isFinite(n)) return 0;
   return Math.min(VOLUME_MAX, Math.max(0, Math.round(n)));
@@ -839,6 +888,25 @@ function syncNeckFields() {
   document.getElementById("neckWidthNum").value = String(state.neckWidth);
   document.getElementById("neckHeight").value = String(state.neckHeight);
   document.getElementById("neckHeightNum").value = String(state.neckHeight);
+}
+
+function syncTiltFields() {
+  document.getElementById("tiltAlpha").value = String(state.alpha);
+  document.getElementById("tiltAlphaNum").value = String(state.alpha);
+  document.getElementById("tiltBeta").value = String(state.beta);
+  document.getElementById("tiltBetaNum").value = String(state.beta);
+}
+
+function setAlpha(n) {
+  state.alpha = clampAngle(n, -20, 45);
+  syncTiltFields();
+  render();
+}
+
+function setBeta(n) {
+  state.beta = clampAngle(n, -45, 45);
+  syncTiltFields();
+  render();
 }
 
 function syncVolumeFields() {
@@ -892,11 +960,9 @@ function applyPreset(name, doRender = true) {
   state.numberCount = preset.numberCount;
   state.volumes = preset.volumes.slice();
   state.addLater = preset.addLater;
+  state.alpha = preset.alpha;
+  state.beta = preset.beta;
   state.forceRebuild = true;
-  const defaultBtn = document.getElementById("preset-default");
-  const upgradeBtn = document.getElementById("preset-upgrade");
-  if (defaultBtn) defaultBtn.setAttribute("aria-pressed", String(name === "default"));
-  if (upgradeBtn) upgradeBtn.setAttribute("aria-pressed", String(name === "upgrade"));
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
   });
@@ -914,6 +980,7 @@ function applyPreset(name, doRender = true) {
   document.getElementById("addLater").checked = state.addLater;
   document.getElementById("minHeightPx").value = String(state.minHeightPx);
   syncNeckFields();
+  syncTiltFields();
   syncVolumeFields();
   if (doRender) render();
 }
@@ -929,6 +996,7 @@ function render() {
   document.getElementById("height-hint").textContent = heightHint();
   document.getElementById("neck-row").dataset.disabled =
     state.view === "funnel" || state.view === "funnel3d" ? "false" : "true";
+  document.getElementById("tilt-row").dataset.disabled = state.view === "funnel3d" ? "false" : "true";
   document.getElementById("height-seg").dataset.disabled = state.view === "current" ? "true" : "false";
   document.getElementById("minpx-toggle").dataset.disabled =
     state.view === "current" || !usesMinHeight() ? "true" : "false";
@@ -1014,6 +1082,16 @@ function bind() {
   document.getElementById("neckHeightNum").addEventListener("input", (e) => {
     if (e.target.value === "") return;
     setNeckHeight(Number(e.target.value));
+  });
+  document.getElementById("tiltAlpha").addEventListener("input", (e) => setAlpha(Number(e.target.value)));
+  document.getElementById("tiltAlphaNum").addEventListener("input", (e) => {
+    if (e.target.value === "") return;
+    setAlpha(Number(e.target.value));
+  });
+  document.getElementById("tiltBeta").addEventListener("input", (e) => setBeta(Number(e.target.value)));
+  document.getElementById("tiltBetaNum").addEventListener("input", (e) => {
+    if (e.target.value === "") return;
+    setBeta(Number(e.target.value));
   });
   document.getElementById("volume-grid").addEventListener("input", (e) => {
     const el = e.target.closest("[data-volume]");

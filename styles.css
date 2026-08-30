@@ -74,10 +74,35 @@ body {
   margin-bottom: 14px;
 }
 
-.panel-head .seg {
-  position: relative;
-  z-index: 2;
+.panel-head h2 {
+  margin: 0;
+}
+
+.panel-head .preset-actions {
+  display: flex;
+  gap: 8px;
   flex-shrink: 0;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--grey-3);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--grey-9);
+  font: 500 13px var(--font);
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--grey-1);
+  border-color: var(--grey-5);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--blue-4);
+  outline-offset: 2px;
 }
 
 .setting {
@@ -574,4 +599,23 @@ body {
 .highcharts-columnrange-series .highcharts-point-hover {
   stroke: #fff;
   stroke-width: 1;
+}
+
+.highcharts-funnel3d-series path,
+.highcharts-funnel3d-series .highcharts-point {
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+.highcharts-3d-frame,
+.highcharts-3d-frame-left,
+.highcharts-3d-frame-right,
+.highcharts-3d-frame-back,
+.highcharts-3d-frame-front,
+.highcharts-3d-frame-top,
+.highcharts-3d-frame-bottom,
+.highcharts-3d-frame-side {
+  display: none !important;
+  fill: none !important;
+  stroke: none !important;
 }
