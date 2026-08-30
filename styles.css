@@ -207,7 +207,8 @@ body {
 
 #chart-seg,
 #height-seg,
-#labels-seg {
+#labels-seg,
+#color-seg {
   flex-wrap: wrap;
   max-width: 100%;
 }

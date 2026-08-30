@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=25" />
+  <link rel="stylesheet" href="styles.css?v=26" />
 </head>
 <body>
   <div class="page">
@@ -72,6 +72,10 @@
       </div>
       <div class="setting" id="style-row">
         <span class="k">Style</span>
+        <div class="seg" id="color-seg" role="radiogroup" aria-label="Color set">
+          <button type="button" data-colors="production" aria-pressed="false">Current</button>
+          <button type="button" data-colors="updated" aria-pressed="true">Updated</button>
+        </div>
         <label class="toggle" id="rich-toggle">
           <input id="richColor" type="checkbox" checked />
           Rich color
@@ -127,6 +131,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=25"></script>
+  <script src="app.js?v=26"></script>
 </body>
 </html>

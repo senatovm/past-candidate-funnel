@@ -1,31 +1,11 @@
 const COLORS = {
-  red: { 1: "#FFF5F7", 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#E23B55", 7: "#C42B45" },
-  orange: { 1: "#FFF7ED", 2: "#FFEFDC", 3: "#FFDEBA", 5: "#E67600", 6: "#D15F00" },
-  yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500", 5: "#C49A00" },
-  green: {
-    1: "#EFFAF7",
-    2: "#E0F4EE",
-    3: "#C7EBE1",
-    4: "#66CAAF",
-    5: "#2DA68B",
-    6: "#2F836E",
-    7: "#0E6352",
-    8: "#054338",
-    9: "#032C24",
-    10: "#021B17"
-  },
-  blue: {
-    1: "#F5F9FF",
-    2: "#E9F2FF",
-    3: "#D0E4FF",
-    4: "#8EBAF8",
-    6: "#2372E2",
-    7: "#004ECB",
-    8: "#003785",
-    9: "#002457",
-    10: "#001636"
-  },
-  grey: { 3: "#E1E3EA", 9: "#222533" }
+  grey: { 1: "#F8F8FB", 2: "#EFF0F4", 3: "#E1E3EA", 4: "#B2B7CB", 5: "#8B93B4", 6: "#6A749B", 7: "#4E5777", 9: "#222533" },
+  violet: { 1: "#FAF7FD", 2: "#F4EEFB", 3: "#EADEF7", 5: "#A981E3", 6: "#8D59DC", 7: "#6F2FCC" },
+  red: { 1: "#FEF7F8", 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#D23F57", 7: "#A4283D" },
+  orange: { 1: "#FFF7ED", 2: "#FFEFDC", 3: "#FFE2BA", 5: "#E67600", 6: "#B65E00" },
+  yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500", 5: "#B09200", 6: "#8C7300" },
+  green: { 1: "#EFFAF7", 2: "#E0F4EE", 3: "#C7EBE1", 4: "#66CAAF", 5: "#2DA68B", 6: "#2F836E", 7: "#0E6352" },
+  blue: { 1: "#F5F9FF", 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 5: "#5795EE", 6: "#2372E2", 7: "#004ECB", 8: "#003785" }
 };
 
 const STAGES = [
@@ -86,9 +66,9 @@ const STAGES = [
     value: 4,
     backgroundColor: COLORS.green[2],
     backgroundColorActive: COLORS.green[3],
-    richFill: COLORS.green[7],
-    richHover: COLORS.green[8],
-    color: COLORS.green[7],
+    richFill: COLORS.green[6],
+    richHover: COLORS.green[7],
+    color: COLORS.green[6],
     tint100: COLORS.green[1],
     tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Advanced interviews stage",
@@ -99,9 +79,9 @@ const STAGES = [
     value: 3,
     backgroundColor: COLORS.green[3],
     backgroundColorActive: COLORS.green[4],
-    richFill: COLORS.green[9],
-    richHover: COLORS.green[10],
-    color: COLORS.green[9],
+    richFill: COLORS.green[6],
+    richHover: COLORS.green[7],
+    color: COLORS.green[6],
     tint100: COLORS.green[1],
     tint200: COLORS.green[2],
     reportTitle: "candidates who completed a step in Reference stage",
@@ -125,9 +105,9 @@ const STAGES = [
     value: 2,
     backgroundColor: COLORS.blue[2],
     backgroundColorActive: COLORS.blue[3],
-    richFill: COLORS.blue[8],
-    richHover: COLORS.blue[9],
-    color: COLORS.blue[8],
+    richFill: COLORS.blue[6],
+    richHover: COLORS.blue[8],
+    color: COLORS.blue[6],
     tint100: COLORS.blue[1],
     tint200: COLORS.blue[2],
     reportTitle: "hired candidates",
@@ -165,6 +145,7 @@ const VIEW_DEFAULTS = {
     numberCount: 1,
     volumes: [42, 17, 12, 9, 4, 3, 2, 2],
     addLater: true,
+    colorSet: "production",
     neckWidth: 32,
     neckHeight: 22
   },
@@ -177,6 +158,7 @@ const VIEW_DEFAULTS = {
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
+    colorSet: "updated",
     neckWidth: 32,
     neckHeight: 22
   },
@@ -189,6 +171,7 @@ const VIEW_DEFAULTS = {
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
+    colorSet: "updated",
     neckWidth: 0,
     neckHeight: 0
   },
@@ -201,6 +184,7 @@ const VIEW_DEFAULTS = {
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: true,
+    colorSet: "updated",
     neckWidth: 0,
     neckHeight: 0
   }
@@ -288,16 +272,55 @@ function enrich(stages) {
   });
 }
 
+const UPDATED_HUES = {
+  "Applied/Added": { hue: "grey", step: 5 },
+  "Application screening": { hue: "violet", step: 5 },
+  "Screening interviews": { hue: "red", step: 5 },
+  Assessment: { hue: "orange", step: 5 },
+  "Advanced interviews": { hue: "yellow", step: 5 },
+  Reference: { hue: "green", step: 5 },
+  Offer: { hue: "blue", step: 5 },
+  Hired: { hue: "blue", step: 7 }
+};
+
+function token(hue, step) {
+  const scale = COLORS[hue];
+  if (!scale) return COLORS.grey[5];
+  if (scale[step]) return scale[step];
+  const keys = Object.keys(scale)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const next = keys.find((k) => k >= step);
+  return scale[next] || scale[keys[keys.length - 1]];
+}
+
 function paint(stage) {
+  if (state.colorSet === "updated") {
+    const spec = UPDATED_HUES[stage.name];
+    if (spec) {
+      const fillStep = state.richColor ? spec.step : 2;
+      const hoverStep = state.richColor ? spec.step + 1 : 3;
+      const fill = token(spec.hue, fillStep);
+      return {
+        fill,
+        hover: token(spec.hue, hoverStep),
+        border: token(spec.hue, spec.step)
+      };
+    }
+  }
   if (state.richColor) {
     return { fill: stage.richFill, hover: stage.richHover, border: stage.color };
   }
   return { fill: stage.backgroundColor, hover: stage.backgroundColorActive, border: stage.color };
 }
 
+function accent(stage) {
+  return paint(stage).border;
+}
+
 function ribbonPaint(stage) {
-  if (state.richColor) return { fill: stage.richFill, hover: stage.richHover };
-  return { fill: stage.backgroundColor, hover: stage.backgroundColorActive };
+  const p = paint(stage);
+  return { fill: p.fill, hover: p.hover };
 }
 
 function usesLabelOverlay() {
@@ -389,7 +412,7 @@ function stageNumsHtml(stage) {
 function stageLabelHtml(stage) {
   const nums = stageNumsHtml(stage);
   const dot = state.labels === "inside"
-    ? `<span class="hc-dot" style="color:${stage.color}">●</span>`
+    ? `<span class="hc-dot" style="color:${accent(stage)}">●</span>`
     : "";
   if (state.labels === "line" && state.splitNumbers) {
     return `<span class="hc-label-name">${stage.name}</span>${nums}`;
@@ -466,7 +489,7 @@ function tooltipHtml(stage) {
     rows.push(`<tr><td><span class="metric">♥ ${ratio(stage.funnelRate)}</span></td><td>Reached this stage &amp; were hired</td></tr>`);
   }
   return `<div class="tooltip">
-    <div class="tooltip-title"><span style="font-size:16px;color:${stage.color}">●</span>${stage.name}</div>
+    <div class="tooltip-title"><span style="font-size:16px;color:${accent(stage)}">●</span>${stage.name}</div>
     <table>${rows.join("")}</table>
   </div>`;
 }
@@ -995,7 +1018,7 @@ function renderHorizontal(container, stages) {
           .map(
             (stage, i) => `<button type="button" class="hfunnel-col" data-hstage="${i}" title="${stage.name}">
               <div class="meta">
-                <span class="swatch" style="background:${stage.color}"></span>
+                <span class="swatch" style="background:${accent(stage)}"></span>
                 <span class="label">${stage.name}</span>
               </div>
               <div class="value">${stage.value}</div>
@@ -1255,7 +1278,7 @@ function syncLabels(chart) {
     if (!li || !slice.el) return;
     const { cy, edge } = slice;
     const ly = placed[i];
-    const color = slice.point.custom.step.color;
+    const color = accent(slice.point.custom.step);
 
     if (mode === "inside") {
       li.style.top = `${ly}px`;
@@ -1382,7 +1405,15 @@ Hover
 Labels
   ${labels}
   numbers shown: ${state.numberCount} → ${labelNums}
-  fills: ${state.richColor ? "rich tokens, same hue at least 2 steps apart" : "production pale tokens (step 1–2)"}
+  fills: ${
+    state.colorSet === "updated"
+      ? state.richColor
+        ? "updated hues: grey 5, violet 5, red 5, orange 5, yellow 5, green 5, blue 5, blue 7"
+        : "updated hues, pale step 2"
+      : state.richColor
+        ? "production rich tokens"
+        : "production pale tokens (step 1–2)"
+  }
 
 Click
   point.click → openDrawer({ reportTitle })
@@ -1431,6 +1462,7 @@ function viewSnapshot() {
     heightMode: state.heightMode,
     minHeightPx: state.minHeightPx,
     richColor: state.richColor,
+    colorSet: state.colorSet,
     splitNumbers: state.splitNumbers,
     numberCount: state.numberCount,
     volumes: state.volumes.slice(),
@@ -1445,6 +1477,7 @@ function applyViewSettings(saved) {
   state.heightMode = saved.heightMode;
   state.minHeightPx = saved.minHeightPx;
   state.richColor = saved.richColor;
+  state.colorSet = saved.colorSet === "updated" ? "updated" : "production";
   state.splitNumbers = saved.splitNumbers;
   state.numberCount = saved.numberCount;
   state.volumes = saved.volumes.slice();
@@ -1465,6 +1498,9 @@ function syncControls() {
   });
   document.querySelectorAll("[data-numbers]").forEach((btn) => {
     btn.setAttribute("aria-pressed", String(Number(btn.dataset.numbers) === state.numberCount));
+  });
+  document.querySelectorAll("[data-colors]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.colors === state.colorSet));
   });
   document.getElementById("richColor").checked = state.richColor;
   document.getElementById("splitNumbers").checked = state.splitNumbers;
@@ -1643,8 +1679,19 @@ function bind() {
     state.addLater = e.target.checked;
     render();
   });
+  document.querySelectorAll("[data-colors]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.colorSet = btn.dataset.colors;
+      state.forceRebuild = true;
+      document.querySelectorAll("[data-colors]").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b === btn));
+      });
+      render();
+    });
+  });
   document.getElementById("richColor").addEventListener("change", (e) => {
     state.richColor = e.target.checked;
+    state.forceRebuild = true;
     render();
   });
   document.getElementById("splitNumbers").addEventListener("change", (e) => {
