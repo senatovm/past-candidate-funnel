@@ -7,108 +7,103 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=22" />
+  <link rel="stylesheet" href="styles.css?v=23" />
 </head>
 <body>
   <div class="page">
-    <div class="page-chart">
-      <section class="widget">
-        <div class="widget-head">
-          <h2>Funnel by stages</h2>
-          <svg class="info" viewBox="64 64 896 896" aria-hidden="true"><path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path fill="currentColor" d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"/></svg>
-        </div>
-        <div id="single" class="chart-frame">
-          <div id="chart-main" class="chart"></div>
-          <div id="col-anno" class="col-anno hidden" aria-hidden="true"></div>
-          <svg class="label-lines" aria-hidden="true"></svg>
-          <ul id="labels-main" class="label-col hidden"></ul>
-        </div>
-      </section>
-    </div>
+    <section class="widget">
+      <div class="widget-head">
+        <h2>Funnel by stages</h2>
+        <svg class="info" viewBox="64 64 896 896" aria-hidden="true"><path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path fill="currentColor" d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"/></svg>
+      </div>
+      <div id="single" class="chart-frame">
+        <div id="chart-main" class="chart"></div>
+        <div id="col-anno" class="col-anno hidden" aria-hidden="true"></div>
+        <svg class="label-lines" aria-hidden="true"></svg>
+        <ul id="labels-main" class="label-col hidden"></ul>
+      </div>
+    </section>
 
-    <div class="page-side">
-      <section class="panel" id="volume-panel">
-        <h2>Volume</h2>
-        <div class="volume-wrap">
-          <div class="seg" id="volume-mode-seg" role="tablist" aria-label="Volume source">
-            <button type="button" data-volume-mode="random" aria-pressed="false">Randomize</button>
-            <button type="button" data-volume-mode="default" aria-pressed="true">Default</button>
-            <button type="button" data-volume-mode="custom" aria-pressed="false">Custom</button>
-          </div>
-          <div id="volume-grid" class="volume-grid hidden"></div>
-          <label class="toggle combine-label">
-            <input id="addLater" type="checkbox" />
-            <span><span class="combine-name">Combine.</span> Assume people who reached a later stage also went through the earlier ones. A later stage cannot show a higher count than the previous stage.</span>
-          </label>
+    <section class="panel" id="settings">
+      <h2>Settings</h2>
+      <div class="chart-switch">
+        <div class="seg" id="chart-seg" role="tablist" aria-label="Chart variant">
+          <button type="button" data-view="current" aria-pressed="false">Current (columnrange)</button>
+          <button type="button" data-view="funnel" aria-pressed="true">Funnel</button>
+          <button type="button" data-view="columns" aria-pressed="false">Column funnel</button>
+          <button type="button" data-view="horizontal" aria-pressed="false">Horizontal funnel (custom)</button>
         </div>
-      </section>
+      </div>
+      <div class="setting" id="labels-row">
+        <span class="k">Labels</span>
+        <div class="seg" id="labels-seg" role="tablist" aria-label="Label placement">
+          <button type="button" data-labels="inside" aria-pressed="false">Inside</button>
+          <button type="button" data-labels="side" aria-pressed="false">Side</button>
+          <button type="button" data-labels="line" aria-pressed="false">Line</button>
+          <button type="button" data-labels="table" aria-pressed="true">Table</button>
+        </div>
+      </div>
+      <div class="setting" id="height-row">
+        <span class="k">Height</span>
+        <div class="seg" id="height-seg" role="tablist" aria-label="Slice height">
+          <button type="button" data-height="share" aria-pressed="false">Proportional</button>
+          <button type="button" data-height="progressive" aria-pressed="false">Progressive</button>
+          <button type="button" data-height="floor" aria-pressed="false">Proportional min height</button>
+          <button type="button" data-height="progfloor" aria-pressed="true">Progressive min height</button>
+        </div>
+        <label class="toggle field" id="minpx-toggle">
+          <input id="minHeightPx" type="number" min="8" max="80" value="24" />
+          px
+        </label>
+        <span class="hint" id="height-hint"></span>
+      </div>
+      <div class="setting" id="numbers-row">
+        <span class="k">Numbers</span>
+        <div class="seg" id="numbers-seg" role="tablist" aria-label="Numbers per stage">
+          <button type="button" data-numbers="1" aria-pressed="true">1</button>
+          <button type="button" data-numbers="2" aria-pressed="false">2</button>
+          <button type="button" data-numbers="3" aria-pressed="false">3</button>
+        </div>
+        <span class="hint" id="numbers-hint">count</span>
+        <label class="toggle" id="cols-toggle">
+          <input id="splitNumbers" type="checkbox" checked />
+          Number columns
+        </label>
+      </div>
+      <div class="setting" id="style-row">
+        <span class="k">Style</span>
+        <label class="toggle" id="rich-toggle">
+          <input id="richColor" type="checkbox" checked />
+          Rich color
+        </label>
+      </div>
+    </section>
 
-      <section class="panel" id="settings">
-        <h2>Settings</h2>
-        <div class="chart-switch">
-          <div class="seg" id="chart-seg" role="tablist" aria-label="Chart variant">
-            <button type="button" data-view="current" aria-pressed="false">Current (columnrange)</button>
-            <button type="button" data-view="funnel" aria-pressed="true">Funnel</button>
-            <button type="button" data-view="columns" aria-pressed="false">Column funnel</button>
-            <button type="button" data-view="horizontal" aria-pressed="false">Horizontal funnel (custom)</button>
-          </div>
+    <section class="panel" id="volume-panel">
+      <h2>Volume</h2>
+      <div class="volume-wrap">
+        <div class="volume-actions">
+          <button type="button" class="btn" id="volume-random">Randomize</button>
+          <button type="button" class="btn" id="volume-default">Default</button>
         </div>
-        <div class="setting" id="labels-row">
-          <span class="k">Labels</span>
-          <div class="seg" id="labels-seg" role="tablist" aria-label="Label placement">
-            <button type="button" data-labels="inside" aria-pressed="false">Inside</button>
-            <button type="button" data-labels="side" aria-pressed="false">Side</button>
-            <button type="button" data-labels="line" aria-pressed="false">Line</button>
-            <button type="button" data-labels="table" aria-pressed="true">Table</button>
-          </div>
-        </div>
-        <div class="setting" id="height-row">
-          <span class="k">Height</span>
-          <div class="seg" id="height-seg" role="tablist" aria-label="Slice height">
-            <button type="button" data-height="share" aria-pressed="false">Proportional</button>
-            <button type="button" data-height="progressive" aria-pressed="false">Progressive</button>
-            <button type="button" data-height="floor" aria-pressed="false">Proportional min height</button>
-            <button type="button" data-height="progfloor" aria-pressed="true">Progressive min height</button>
-          </div>
-          <label class="toggle field" id="minpx-toggle">
-            <input id="minHeightPx" type="number" min="8" max="80" value="24" />
-            px
-          </label>
-          <span class="hint" id="height-hint"></span>
-        </div>
-        <div class="setting" id="numbers-row">
-          <span class="k">Numbers</span>
-          <div class="seg" id="numbers-seg" role="tablist" aria-label="Numbers per stage">
-            <button type="button" data-numbers="1" aria-pressed="true">1</button>
-            <button type="button" data-numbers="2" aria-pressed="false">2</button>
-            <button type="button" data-numbers="3" aria-pressed="false">3</button>
-          </div>
-          <span class="hint" id="numbers-hint">count</span>
-          <label class="toggle" id="cols-toggle">
-            <input id="splitNumbers" type="checkbox" checked />
-            Number columns
-          </label>
-        </div>
-        <div class="setting" id="style-row">
-          <span class="k">Style</span>
-          <label class="toggle" id="rich-toggle">
-            <input id="richColor" type="checkbox" checked />
-            Rich color
-          </label>
-        </div>
-      </section>
+        <div id="volume-grid" class="volume-grid"></div>
+        <label class="toggle combine-label">
+          <input id="addLater" type="checkbox" />
+          <span><span class="combine-name">Combine.</span> Assume people who reached a later stage also went through the earlier ones. A later stage cannot show a higher count than the previous stage.</span>
+        </label>
+      </div>
+    </section>
 
-      <section class="panel spec" id="spec">
-        <div class="spec-head">
-          <h2>For developers</h2>
-          <div class="spec-actions">
-            <button type="button" class="text-btn" id="spec-copy">Copy</button>
-            <a href="https://github.com/senatovm/past-candidate-funnel" target="_blank" rel="noreferrer">Repository</a>
-          </div>
+    <section class="panel spec" id="spec">
+      <div class="spec-head">
+        <h2>For developers</h2>
+        <div class="spec-actions">
+          <button type="button" class="text-btn" id="spec-copy">Copy</button>
+          <a href="https://github.com/senatovm/past-candidate-funnel" target="_blank" rel="noreferrer">Repository</a>
         </div>
-        <pre id="spec-body"></pre>
-      </section>
-    </div>
+      </div>
+      <pre id="spec-body"></pre>
+    </section>
   </div>
 
   <div id="mask" class="mask hidden"></div>
@@ -127,6 +122,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>
