@@ -1,9 +1,9 @@
 const COLORS = {
-  red: { 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E" },
-  orange: { 2: "#FFEFDC", 3: "#FFDEBA", 5: "#E67600" },
-  yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500" },
+  red: { 2: "#FDECEF", 3: "#FDDBE1", 5: "#EF687E", 6: "#E23B55", 7: "#C42B45" },
+  orange: { 2: "#FFEFDC", 3: "#FFDEBA", 5: "#E67600", 6: "#D15F00" },
+  yellow: { 1: "#FEF9DC", 2: "#FEF2BA", 4: "#D9B500", 5: "#C49A00" },
   green: { 1: "#EFFAF7", 2: "#E0F4EE", 3: "#C7EBE1", 4: "#66CAAF", 5: "#3AA686", 6: "#1F7A64", 7: "#0E6352", 9: "#032C24" },
-  blue: { 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 6: "#2372E2", 8: "#003785" },
+  blue: { 2: "#E9F2FF", 3: "#D0E4FF", 4: "#8EBAF8", 6: "#2372E2", 7: "#0B5AD4", 8: "#003785" },
   grey: { 9: "#222533" }
 };
 
@@ -13,8 +13,8 @@ const STAGES = [
     value: 42,
     backgroundColor: COLORS.red[2],
     backgroundColorActive: COLORS.red[3],
-    richFill: COLORS.red[3],
-    richHover: COLORS.red[5],
+    richFill: COLORS.red[5],
+    richHover: COLORS.red[6],
     color: COLORS.red[5],
     reportTitle: "Apply/added candidates",
     candidates: ["Jeanette J. Gipson", "Emilio N. Snyder", "Julia J. Speaks", "Franklin B. Cronin"]
@@ -24,8 +24,8 @@ const STAGES = [
     value: 17,
     backgroundColor: COLORS.orange[2],
     backgroundColorActive: COLORS.orange[3],
-    richFill: COLORS.orange[3],
-    richHover: COLORS.orange[5],
+    richFill: COLORS.orange[5],
+    richHover: COLORS.orange[6],
     color: COLORS.orange[5],
     reportTitle: "candidates who completed a step in Application screening stage",
     candidates: ["Jeanette J. Gipson", "Emilio N. Snyder", "Wilma T. Hill"]
@@ -35,8 +35,8 @@ const STAGES = [
     value: 12,
     backgroundColor: COLORS.yellow[1],
     backgroundColorActive: COLORS.yellow[2],
-    richFill: COLORS.yellow[2],
-    richHover: COLORS.yellow[4],
+    richFill: COLORS.yellow[4],
+    richHover: COLORS.yellow[5],
     color: COLORS.yellow[4],
     reportTitle: "candidates who completed a step in Screening interviews stage",
     candidates: ["Jeanette J. Gipson", "Thomas B. Stainbrook"]
@@ -46,9 +46,9 @@ const STAGES = [
     value: 9,
     backgroundColor: COLORS.green[1],
     backgroundColorActive: COLORS.green[2],
-    richFill: COLORS.green[3],
-    richHover: COLORS.green[4],
-    color: COLORS.green[4],
+    richFill: COLORS.green[5],
+    richHover: COLORS.green[6],
+    color: COLORS.green[5],
     reportTitle: "candidates who completed a step in Assessment stage",
     candidates: ["Jeanette J. Gipson", "Vera J. Johnson"]
   },
@@ -57,9 +57,9 @@ const STAGES = [
     value: 4,
     backgroundColor: COLORS.green[2],
     backgroundColorActive: COLORS.green[3],
-    richFill: COLORS.green[4],
-    richHover: COLORS.green[5],
-    color: COLORS.green[7],
+    richFill: COLORS.green[6],
+    richHover: COLORS.green[7],
+    color: COLORS.green[6],
     reportTitle: "candidates who completed a step in Advanced interviews stage",
     candidates: ["Jeanette J. Gipson", "Toni R. Roberson"]
   },
@@ -68,9 +68,9 @@ const STAGES = [
     value: 3,
     backgroundColor: COLORS.green[3],
     backgroundColorActive: COLORS.green[4],
-    richFill: COLORS.green[5],
-    richHover: COLORS.green[6],
-    color: COLORS.green[9],
+    richFill: COLORS.green[6],
+    richHover: COLORS.green[7],
+    color: COLORS.green[6],
     reportTitle: "candidates who completed a step in Reference stage",
     candidates: ["Jeanette J. Gipson"]
   },
@@ -79,9 +79,9 @@ const STAGES = [
     value: 2,
     backgroundColor: COLORS.blue[3],
     backgroundColorActive: COLORS.blue[4],
-    richFill: COLORS.blue[4],
-    richHover: COLORS.blue[6],
-    color: COLORS.blue[8],
+    richFill: COLORS.blue[6],
+    richHover: COLORS.blue[7],
+    color: COLORS.blue[6],
     reportTitle: "candidates who completed a step in Offer stage",
     candidates: ["Jeanette J. Gipson"]
   },
@@ -90,8 +90,8 @@ const STAGES = [
     value: 2,
     backgroundColor: COLORS.blue[2],
     backgroundColorActive: COLORS.blue[3],
-    richFill: COLORS.blue[3],
-    richHover: COLORS.blue[4],
+    richFill: COLORS.blue[6],
+    richHover: COLORS.blue[8],
     color: COLORS.blue[6],
     reportTitle: "hired candidates",
     candidates: ["Jeanette J. Gipson"]
@@ -104,45 +104,54 @@ const FUNNEL_RADIUS = 12;
 const VOLUME_MAX = 1000;
 const CURSOR = "nesw-resize";
 
-const PRESETS = {
-  default: {
-    view: "current",
-    neckWidth: 22,
-    neckHeight: 22,
-    heightMode: "equal",
-    minHeightPx: 18,
-    richColor: false,
+const VIEW_DEFAULTS = {
+  current: {
     labels: "inside",
+    heightMode: "floor",
+    minHeightPx: 16,
+    richColor: false,
     splitNumbers: true,
     numberCount: 1,
     volumes: [42, 17, 12, 9, 4, 3, 2, 2],
     addLater: true,
-    alpha: 10,
-    beta: 0,
-    funnel3d: false
+    neckWidth: 32,
+    neckHeight: 22
   },
-  upgrade: {
-    view: "funnel",
-    neckWidth: 22,
-    neckHeight: 22,
-    heightMode: "floor",
-    minHeightPx: 18,
+  funnel: {
+    labels: "table",
+    heightMode: "progfloor",
+    minHeightPx: 16,
     richColor: true,
-    labels: "side",
     splitNumbers: true,
     numberCount: 1,
-    volumes: [58, 123, 133, 48, 4, 3, 2, 2],
+    volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
-    alpha: 10,
-    beta: 0,
-    funnel3d: false
+    neckWidth: 32,
+    neckHeight: 22
+  },
+  horizontal: {
+    labels: "inside",
+    heightMode: "floor",
+    minHeightPx: 16,
+    richColor: true,
+    splitNumbers: true,
+    numberCount: 1,
+    volumes: [250, 123, 133, 48, 4, 3, 2, 2],
+    addLater: false,
+    neckWidth: 0,
+    neckHeight: 0
   }
 };
 
 const state = {
-  preset: "default",
-  ...PRESETS.default,
-  volumes: PRESETS.default.volumes.slice(),
+  view: "funnel",
+  ...VIEW_DEFAULTS.funnel,
+  volumes: VIEW_DEFAULTS.funnel.volumes.slice(),
+  byView: {
+    current: { ...VIEW_DEFAULTS.current, volumes: VIEW_DEFAULTS.current.volumes.slice() },
+    funnel: { ...VIEW_DEFAULTS.funnel, volumes: VIEW_DEFAULTS.funnel.volumes.slice() },
+    horizontal: { ...VIEW_DEFAULTS.horizontal, volumes: VIEW_DEFAULTS.horizontal.volumes.slice() }
+  },
   charts: [],
   forceRebuild: false
 };
@@ -191,12 +200,8 @@ function paint(stage) {
 }
 
 function ribbonPaint(stage) {
-  if (state.richColor) return { fill: stage.color, hover: stage.richHover };
+  if (state.richColor) return { fill: stage.richFill, hover: stage.richHover };
   return { fill: stage.backgroundColor, hover: stage.backgroundColorActive };
-}
-
-function isFunnel3d() {
-  return state.view === "funnel" && state.funnel3d;
 }
 
 function usesLabelOverlay() {
@@ -232,7 +237,6 @@ function withMinFloor(weights) {
 }
 
 function displayYs(values) {
-  if (state.heightMode === "equal") return values.map(() => 1);
   if (state.heightMode === "share") return values.slice();
   if (state.heightMode === "progressive") {
     return values.map((v) => Math.sqrt(Math.max(v, 0)));
@@ -248,7 +252,7 @@ function heightHint() {
   if (state.heightMode === "progressive") return "sqrt(count): gaps stay, less polar";
   if (state.heightMode === "floor") return "linear count, then a px floor";
   if (state.heightMode === "progfloor") return "sqrt(count), then a px floor";
-  return "same height for every stage";
+  return "linear count, then a px floor";
 }
 
 function usesMinHeight() {
@@ -309,12 +313,10 @@ function pointEvents() {
     },
     mouseOver() {
       if (!this.graphic || !this.custom || this.custom.type !== "step") return;
-      if (isFunnel3d()) return;
       paintFill(this.graphic, paint(this.custom.step).hover);
     },
     mouseOut() {
       if (!this.graphic || !this.custom || this.custom.type !== "step") return;
-      if (isFunnel3d()) return;
       paintFill(this.graphic, paint(this.custom.step).fill);
     }
   };
@@ -399,21 +401,14 @@ function clickPoint(point) {
 }
 
 function shapeLayout() {
-  if (state.labels === "table") {
-    if (isFunnel3d()) return { width: "72%", center: ["50%", "50%"] };
-    return { width: "88%", center: ["50%", "50%"] };
-  }
-  if (isFunnel3d()) {
-    if (state.labels === "inside") return { width: "70%", center: ["50%", "50%"] };
-    return { width: "56%", center: ["34%", "50%"] };
-  }
+  if (state.labels === "table") return { width: "92%", center: ["50%", "50%"] };
   if (state.labels === "inside") return { width: "62%", center: ["50%", "50%"] };
   if (state.labels === "side") return { width: "48%", center: ["38%", "50%"] };
   return { width: "52%", center: ["36%", "50%"] };
 }
 
 function tableGutters() {
-  return { left: 176, right: 136 };
+  return { left: 112, right: 64 };
 }
 
 function currentOptions(stages, height) {
@@ -488,101 +483,55 @@ function currentOptions(stages, height) {
   };
 }
 
-function funnelOptions(stages, type, height) {
+function funnelOptions(stages, height) {
   const values = displayYs(stages.map((s) => s.value));
   const layout = shapeLayout();
-  const is3d = type === "funnel3d";
+  const table = state.labels === "table";
+  const gutters = tableGutters();
   const shape = {
-    type,
+    type: "funnel",
     name: "Funnel",
     animation: false,
     turboThreshold: 0,
     cursor: CURSOR,
-    borderWidth: is3d ? 0 : 1,
-    borderColor: is3d ? undefined : "#fff",
-    edgeWidth: 0,
-    edgeColor: "rgba(0,0,0,0)",
+    borderWidth: 1,
+    borderColor: "#fff",
     width: layout.width,
-    height: is3d ? "82%" : "90%",
+    height: "90%",
     center: layout.center,
     reversed: false,
     neckWidth: `${state.neckWidth}%`,
     neckHeight: `${state.neckHeight}%`,
+    borderRadius: { radius: FUNNEL_RADIUS, scope: "stack" },
     dataLabels: { enabled: false },
     point: { events: pointEvents() },
-    states: is3d
-      ? { hover: { enabled: false, halo: false, brightness: 0 }, inactive: { enabled: false, opacity: 1 } }
-      : { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } },
+    states: { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } },
     data: stages.map((stage, i) => {
       const p = paint(stage);
-      const row = {
+      return {
         name: stage.name,
         y: values[i],
         color: p.fill,
-        custom: { type: "step", step: stage }
+        custom: { type: "step", step: stage },
+        states: { hover: { color: p.hover, brightness: 0 } }
       };
-      if (!is3d) {
-        row.states = { hover: { color: p.hover, brightness: 0 } };
-      } else {
-        row.states = { hover: { enabled: false, halo: false, brightness: 0 } };
-      }
-      return row;
     })
   };
-  if (!is3d) shape.borderRadius = { radius: FUNNEL_RADIUS, scope: "stack" };
-  if (is3d) shape.gradientForSides = true;
-
-  const table = state.labels === "table";
-  const gutters = tableGutters();
-  const spacing = is3d
-    ? table
-      ? [20, gutters.right, 24, gutters.left]
-      : [20, 16, 24, 16]
-    : table
-      ? [8, gutters.right, 8, gutters.left]
-      : [8, 8, 8, 8];
 
   return {
     credits: { enabled: false },
     exporting: { enabled: false },
     accessibility: { enabled: false },
     chart: {
-      type,
+      type: "funnel",
       height,
       animation: false,
       backgroundColor: "transparent",
-      spacing,
-      options3d: is3d
-        ? {
-            enabled: true,
-            alpha: state.alpha,
-            beta: state.beta,
-            depth: 50,
-            viewDistance: 50,
-            fitToPlot: false,
-            frame: {
-              visible: false,
-              size: 0,
-              left: { size: 0, color: "transparent", visible: false },
-              right: { size: 0, color: "transparent", visible: false },
-              front: { size: 0, color: "transparent", visible: false },
-              back: { size: 0, color: "transparent", visible: false },
-              top: { size: 0, color: "transparent", visible: false },
-              bottom: { size: 0, color: "transparent", visible: false }
-            }
-          }
-        : { enabled: false },
+      spacing: table ? [6, gutters.right, 6, gutters.left] : [8, 8, 8, 8],
       events: {
         render() {
           const chart = this;
-          requestAnimationFrame(() => {
-            if (is3d) {
-              strip3dEdges(chart);
-              requestAnimationFrame(() => syncLabels(chart));
-            } else {
-              syncLabels(chart);
-            }
-          });
+          requestAnimationFrame(() => syncLabels(chart));
         }
       }
     },
@@ -590,187 +539,6 @@ function funnelOptions(stages, type, height) {
     legend: { enabled: false },
     tooltip: sharedTooltip(),
     series: [shape]
-  };
-}
-
-function streamgraphOptions(stages, height) {
-  const values = displayYs(stages.map((s) => s.value));
-  const cats = ["", ...stages.map((s) => s.name), ""];
-  const points = [
-    { y: 0, custom: { type: "pad" } },
-    ...stages.map((stage, i) => {
-      const p = paint(stage);
-      return {
-        y: values[i],
-        name: stage.name,
-        color: p.fill,
-        custom: { type: "step", step: stage },
-        states: { hover: { color: p.hover, brightness: 0 } }
-      };
-    }),
-    { y: 0, custom: { type: "pad" } }
-  ];
-  return {
-    credits: { enabled: false },
-    exporting: { enabled: false },
-    accessibility: { enabled: false },
-    chart: {
-      type: "streamgraph",
-      height,
-      animation: false,
-      backgroundColor: "transparent",
-      spacing: [8, 12, 48, 12]
-    },
-    title: { text: undefined },
-    legend: { enabled: false },
-    xAxis: {
-      type: "category",
-      categories: cats,
-      crosshair: true,
-      lineWidth: 0,
-      tickWidth: 0,
-      labels: {
-        rotation: 0,
-        autoRotation: [-40],
-        style: { fontSize: "11px", color: "#4e5777" }
-      }
-    },
-    yAxis: { visible: false, startOnTick: false, endOnTick: false, minPadding: 0.08, maxPadding: 0.08 },
-    tooltip: sharedTooltip(),
-    plotOptions: {
-      series: {
-        animation: false,
-        cursor: CURSOR,
-        fillOpacity: 1,
-        lineWidth: 0,
-        marker: { enabled: false, states: { hover: { enabled: false } } },
-        states: { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } }
-      }
-    },
-    series: [
-      {
-        type: "streamgraph",
-        name: "Reached",
-        colorByPoint: true,
-        zoneAxis: "x",
-        zones: stages.map((stage, i) => ({
-          value: i + 1.5,
-          color: paint(stage).fill
-        })),
-        turboThreshold: 0,
-        data: points,
-        dataLabels: { enabled: false },
-        point: { events: pointEvents() }
-      }
-    ]
-  };
-}
-
-function orderbookOptions(stages, height) {
-  const reached = stages.map((stage) => {
-    const p = paint(stage);
-    return {
-      y: stage.value,
-      name: stage.name,
-      color: p.fill,
-      custom: { type: "step", step: stage },
-      states: { hover: { color: p.hover, brightness: 0, halo: false } }
-    };
-  });
-  const dropped = stages.map((stage) => ({
-    y: stage.dropOffValue || 0,
-    name: stage.name,
-    color: state.richColor ? COLORS.red[5] : COLORS.red[3],
-    custom: { type: "step", step: stage },
-    states: { hover: { brightness: 0, halo: false } }
-  }));
-  const maxY = Math.max(1, ...reached.map((d) => d.y), ...dropped.map((d) => d.y));
-  const showNums = state.numberCount >= 1;
-  return {
-    credits: { enabled: false },
-    exporting: { enabled: false },
-    accessibility: { enabled: false },
-    chart: {
-      type: "bar",
-      height,
-      animation: false,
-      backgroundColor: "transparent",
-      spacing: [12, 16, 16, 16]
-    },
-    title: { text: undefined },
-    legend: { enabled: false },
-    xAxis: {
-      categories: stages.map((s) => s.name),
-      lineWidth: 0,
-      tickWidth: 0,
-      gridLineWidth: 1,
-      gridLineColor: "#EFF0F4",
-      labels: { style: { fontSize: "12px", color: "#4e5777" } }
-    },
-    yAxis: [
-      {
-        offset: 0,
-        gridLineWidth: 0,
-        left: "50%",
-        width: "50%",
-        min: 0,
-        max: maxY,
-        title: { text: "Reached", style: { fontSize: "11px", color: "#6a749b" } },
-        labels: { style: { fontSize: "11px", color: "#8b93b4" } }
-      },
-      {
-        offset: 0,
-        gridLineWidth: 0,
-        left: "0%",
-        width: "50%",
-        reversed: true,
-        min: 0,
-        max: maxY,
-        title: { text: "Dropped", style: { fontSize: "11px", color: "#6a749b" } },
-        labels: { style: { fontSize: "11px", color: "#8b93b4" } }
-      }
-    ],
-    tooltip: sharedTooltip(),
-    plotOptions: {
-      bar: {
-        animation: false,
-        cursor: CURSOR,
-        pointPadding: 0.08,
-        groupPadding: 0.06,
-        borderWidth: 0,
-        borderRadius: 2,
-        crisp: false,
-        states: { hover: { brightness: 0, halo: false }, inactive: { opacity: 1 } }
-      }
-    },
-    series: [
-      {
-        name: "Reached",
-        colorByPoint: true,
-        data: reached,
-        dataLabels: {
-          enabled: showNums,
-          align: "left",
-          inside: true,
-          style: { fontSize: "11px", textOutline: "none", color: "#222533" },
-          format: "{y}"
-        },
-        point: { events: pointEvents() }
-      },
-      {
-        name: "Dropped",
-        yAxis: 1,
-        data: dropped,
-        dataLabels: {
-          enabled: showNums,
-          align: "right",
-          inside: true,
-          style: { fontSize: "11px", textOutline: "none", color: "#8b93b4" },
-          format: "{y}"
-        },
-        point: { events: pointEvents() }
-      }
-    ]
   };
 }
 
@@ -932,14 +700,6 @@ function streamBand(x0, x1, top0, top1, bot0, bot1) {
 }
 
 function renderHorizontal(container, stages) {
-  const n = stages.length;
-  const extra = (stage) => {
-    if (state.numberCount === 1) return "";
-    const bits = [];
-    if (state.numberCount >= 2 && stage.passValuePercent !== undefined) bits.push(pct(stage.passValuePercent));
-    if (state.numberCount >= 3 && stage.dropOffValuePercent !== undefined) bits.push(pct(stage.dropOffValuePercent));
-    return bits.length ? `<div class="extra">${bits.join(" · ")}</div>` : "";
-  };
   container.innerHTML = `
     <div class="hfunnel">
       <div class="hfunnel-head">
@@ -951,7 +711,6 @@ function renderHorizontal(container, stages) {
                 <span class="label">${stage.name}</span>
               </div>
               <div class="value">${stage.value}</div>
-              ${extra(stage)}
             </button>`
           )
           .join("")}
@@ -983,8 +742,8 @@ function layoutHorizontal(container, stages) {
   const weights = displayYs(stages.map((s) => s.value));
   const maxW = Math.max(...weights, 1);
   const maxThick = Math.max(24, Math.min(h * 0.72, h - 28));
-  const minThick = Math.max(14, maxThick * (state.neckWidth / 100));
-  const thick = (i) => minThick + (maxThick - minThick) * (weights[i] / maxW);
+  const minThick = 8;
+  const thick = (i) => Math.max(minThick, maxThick * (weights[i] / maxW));
   const cy = h / 2;
   const colW = w / stages.length;
   const first = stages[0].value;
@@ -1139,11 +898,6 @@ function syncLabels(chart) {
   const slices = points.map((point) => {
     const el = graphicEl(point);
     if (!el) return { point, el: null, box: null, cy: 0, edge: 0 };
-    if (isFunnel3d()) {
-      const box = el.getBoundingClientRect();
-      const cy = box.top + box.height / 2 - frameBox.top;
-      return { point, el, box, cy, edge: box.right - frameBox.left };
-    }
     const face = graphicFace(el);
     const box = (face || el).getBoundingClientRect();
     const cy = box.top + box.height / 2 - frameBox.top;
@@ -1243,55 +997,37 @@ function specBody() {
   const type =
     state.view === "current"
       ? "columnrange (inverted)"
-      : isFunnel3d()
-        ? "funnel3d"
-        : state.view === "horizontal"
-          ? "custom SVG stream (not Highcharts)"
-          : state.view === "streamgraph"
-            ? "streamgraph"
-            : state.view === "orderbook"
-              ? "bar (split yAxis, order-book layout)"
-              : "funnel";
+      : state.view === "horizontal"
+        ? "custom SVG stream (not Highcharts)"
+        : "funnel";
   const modules =
     state.view === "current"
       ? "highcharts.js, highcharts-more.js"
-      : isFunnel3d()
-        ? "highcharts.js, highcharts-3d.js, modules/cylinder.js, modules/funnel3d.js"
-        : state.view === "horizontal"
-          ? "none. Horizontal funnel is custom SVG. Highcharts has no horizontal funnel series."
-          : state.view === "streamgraph"
-            ? "highcharts.js, modules/streamgraph.js"
-            : state.view === "orderbook"
-              ? "highcharts.js (bar + two y axes, no Highstock)"
-              : "highcharts.js, modules/funnel.js";
+      : state.view === "horizontal"
+        ? "none. Horizontal funnel is custom SVG. Highcharts has no horizontal funnel series."
+        : "highcharts.js, modules/funnel.js";
   const height =
     state.view === "current"
       ? "equal bar height (production). Width encodes count."
       : state.view === "horizontal"
         ? `stream thickness uses Height mode (${state.heightMode}). Each stage is an equal-width column.`
-        : state.view === "orderbook"
-          ? "equal bar thickness. Length encodes reached (right) and dropped (left)."
-          : state.view === "streamgraph"
-            ? `streamgraph y uses Height mode (${state.heightMode}). Thickness is centered on the midline.`
-            : state.heightMode === "equal"
-              ? "equal slice height. Silhouette still tapers. Pass y=1 for every stage."
-              : state.heightMode === "share"
-                ? "raw y = count (linear / arithmetic). Thin stages (Hired=2) become a sliver."
-                : state.heightMode === "progressive"
-                  ? "y = sqrt(count). Order stays, 42 vs 2 is ~4.6× height instead of 21×."
-                  : state.heightMode === "progfloor"
-                    ? `progressive + min height: y = sqrt(count), then reserve 8 × ${state.minHeightPx}px and split leftover by compressed share.`
-                    : `proportional min height: reserve 8 × ${state.minHeightPx}px, leftover plot (~${FUNNEL_PLOT_HEIGHT}px) split by count. Highcharts y is adjusted.`;
+        : state.heightMode === "share"
+          ? "raw y = count (linear / arithmetic). Thin stages (Hired=2) become a sliver."
+          : state.heightMode === "progressive"
+            ? "y = sqrt(count). Order stays, 42 vs 2 is ~4.6× height instead of 21×."
+            : state.heightMode === "progfloor"
+              ? `progressive + min height: y = sqrt(count), then reserve 8 × ${state.minHeightPx}px and split leftover by compressed share.`
+              : `proportional min height: reserve 8 × ${state.minHeightPx}px, leftover plot (~${FUNNEL_PLOT_HEIGHT}px) split by count. Highcharts y is adjusted.`;
   const neck =
     state.view === "funnel"
       ? `neckWidth: '${state.neckWidth}%', neckHeight: '${state.neckHeight}%'${
           state.neckHeight === 0 ? " (truncated triangle)" : " (bottle)"
         }`
       : state.view === "horizontal"
-        ? `blunt end: last column stays at last-stage thickness, floor ${state.neckWidth}% of max. Rounded cap. Never tapers to a point.`
+        ? "blunt end: last column stays at last-stage thickness, floor 0% of max. Rounded cap. Never tapers to a point."
         : "n/a";
   const radius =
-    state.view === "funnel" && !state.funnel3d
+    state.view === "funnel"
       ? `borderRadius: { radius: ${FUNNEL_RADIUS}, scope: 'stack' } (outer silhouette)`
       : "n/a";
   const volumes = `${state.volumes.join(", ")}${
@@ -1302,25 +1038,18 @@ function specBody() {
   const labels =
     state.view === "horizontal"
       ? "column headers: name + count. White pills: share of first stage."
-      : state.view === "streamgraph"
-        ? "xAxis categories. Highcharts dataLabels off."
-        : state.view === "orderbook"
-          ? "xAxis stage names. Bar labels: reached / dropped counts."
-          : state.labels === "inside"
-            ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
-            : state.labels === "side"
-              ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
-              : state.labels === "table"
-                ? "row rules behind the chart (inner dividers only). Name left, chart center, count/% right."
-                : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
-  const threeD = isFunnel3d()
-    ? `\nchart.options3d: { enabled: true, alpha: ${state.alpha}, beta: ${state.beta}, depth: 50, viewDistance: 50, fitToPlot: false }\nframe: off (default left plot wall drew a false border)\nseries.height: 82%, gradientForSides: true, edgeWidth: 0\nhover visual: off\nrecreated on every change`
-    : "";
+      : state.labels === "inside"
+        ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
+        : state.labels === "side"
+          ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
+          : state.labels === "table"
+            ? "row rules behind the chart (inner dividers only). Name left, chart center, count/% right."
+            : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
 
   return `Highcharts 12.5.0
 modules: ${modules}
 
-chart.type: ${type}${threeD}
+chart.type: ${type}
 
 series
   ${neck}
@@ -1346,70 +1075,16 @@ Hover
 Labels
   ${labels}
   numbers shown: ${state.numberCount} → ${labelNums}
-  fills: ${state.richColor ? "rich tokens (step 3–5)" : "production pale tokens (step 1–2)"}
+  fills: ${state.richColor ? "rich tokens (step 5–6)" : "production pale tokens (step 1–2)"}
 
 Click
   point.click → openDrawer({ reportTitle })
   whole fill is the hit target`;
 }
 
-function clampPct(n) {
-  if (!Number.isFinite(n)) return 0;
-  return Math.min(80, Math.max(0, Math.round(n)));
-}
-
-function clampAngle(n, min, max) {
-  if (!Number.isFinite(n)) return min;
-  return Math.min(max, Math.max(min, Math.round(n)));
-}
-
-function strip3dEdges(chart) {
-  if (!chart || !chart.container) return;
-  chart.container.querySelectorAll("[class*='highcharts-3d-frame']").forEach((el) => {
-    el.style.display = "none";
-    el.setAttribute("stroke", "none");
-    el.setAttribute("fill", "none");
-  });
-  if (chart.frameShapes) {
-    Object.values(chart.frameShapes).forEach((shape) => {
-      if (shape && typeof shape.hide === "function") shape.hide();
-    });
-  }
-  chart.container.querySelectorAll(".highcharts-funnel3d-series path, .highcharts-funnel3d-series polygon").forEach((el) => {
-    el.setAttribute("stroke", "none");
-    el.setAttribute("stroke-width", "0");
-  });
-}
-
 function clampVolume(n) {
   if (!Number.isFinite(n)) return 0;
   return Math.min(VOLUME_MAX, Math.max(0, Math.round(n)));
-}
-
-function syncNeckFields() {
-  document.getElementById("neckWidth").value = String(state.neckWidth);
-  document.getElementById("neckWidthNum").value = String(state.neckWidth);
-  document.getElementById("neckHeight").value = String(state.neckHeight);
-  document.getElementById("neckHeightNum").value = String(state.neckHeight);
-}
-
-function syncTiltFields() {
-  document.getElementById("tiltAlpha").value = String(state.alpha);
-  document.getElementById("tiltAlphaNum").value = String(state.alpha);
-  document.getElementById("tiltBeta").value = String(state.beta);
-  document.getElementById("tiltBetaNum").value = String(state.beta);
-}
-
-function setAlpha(n) {
-  state.alpha = clampAngle(n, -20, 45);
-  syncTiltFields();
-  render();
-}
-
-function setBeta(n) {
-  state.beta = clampAngle(n, -45, 45);
-  syncTiltFields();
-  render();
 }
 
 function syncVolumeFields() {
@@ -1430,43 +1105,41 @@ function renderVolumeGrid() {
   ).join("");
 }
 
-function setNeckWidth(n) {
-  state.neckWidth = clampPct(n);
-  syncNeckFields();
-  render();
-}
-
-function setNeckHeight(n) {
-  state.neckHeight = clampPct(n);
-  syncNeckFields();
-  render();
-}
-
 function setVolume(i, n) {
   state.volumes[i] = clampVolume(n);
   syncVolumeFields();
   render();
 }
 
-function applyPreset(name, doRender = true) {
-  const preset = PRESETS[name];
-  if (!preset) return;
-  state.preset = name;
-  state.view = preset.view;
-  state.neckWidth = preset.neckWidth;
-  state.neckHeight = preset.neckHeight;
-  state.heightMode = preset.heightMode;
-  state.minHeightPx = preset.minHeightPx;
-  state.richColor = preset.richColor;
-  state.labels = preset.labels;
-  state.splitNumbers = preset.splitNumbers;
-  state.numberCount = preset.numberCount;
-  state.volumes = preset.volumes.slice();
-  state.addLater = preset.addLater;
-  state.alpha = preset.alpha;
-  state.beta = preset.beta;
-  state.funnel3d = preset.funnel3d;
-  state.forceRebuild = true;
+function viewSnapshot() {
+  return {
+    labels: state.labels,
+    heightMode: state.heightMode,
+    minHeightPx: state.minHeightPx,
+    richColor: state.richColor,
+    splitNumbers: state.splitNumbers,
+    numberCount: state.numberCount,
+    volumes: state.volumes.slice(),
+    addLater: state.addLater,
+    neckWidth: state.neckWidth,
+    neckHeight: state.neckHeight
+  };
+}
+
+function applyViewSettings(saved) {
+  state.labels = saved.labels;
+  state.heightMode = saved.heightMode;
+  state.minHeightPx = saved.minHeightPx;
+  state.richColor = saved.richColor;
+  state.splitNumbers = saved.splitNumbers;
+  state.numberCount = saved.numberCount;
+  state.volumes = saved.volumes.slice();
+  state.addLater = saved.addLater;
+  state.neckWidth = saved.neckWidth;
+  state.neckHeight = saved.neckHeight;
+}
+
+function syncControls() {
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
   });
@@ -1482,19 +1155,23 @@ function applyPreset(name, doRender = true) {
   document.getElementById("richColor").checked = state.richColor;
   document.getElementById("splitNumbers").checked = state.splitNumbers;
   document.getElementById("addLater").checked = state.addLater;
-  const funnel3d = document.getElementById("funnel3d");
-  if (funnel3d) funnel3d.checked = state.funnel3d;
   document.getElementById("minHeightPx").value = String(state.minHeightPx);
-  syncNeckFields();
-  syncTiltFields();
   syncVolumeFields();
-  if (doRender) render();
+}
+
+function switchView(view) {
+  if (view === state.view) return;
+  state.byView[state.view] = viewSnapshot();
+  state.view = view;
+  applyViewSettings(state.byView[view]);
+  state.forceRebuild = true;
+  syncControls();
+  render();
 }
 
 function chartType() {
   if (state.view === "current") return "columnrange";
-  if (state.view === "funnel") return isFunnel3d() ? "funnel3d" : "funnel";
-  if (state.view === "orderbook") return "bar";
+  if (state.view === "funnel") return "funnel";
   return state.view;
 }
 
@@ -1513,22 +1190,13 @@ function render() {
   document.getElementById("spec-body").textContent = specBody();
   document.getElementById("numbers-hint").textContent = numbersHint();
   document.getElementById("height-hint").textContent = heightHint();
-  setShown("funnel3d-row", funnel);
   setShown("labels-row", overlay);
-  setShown("height-row", funnel || horizontal || state.view === "streamgraph");
-  setShown("numbers-row", overlay || horizontal || state.view === "orderbook");
-  setShown("neck-row", funnel || horizontal);
-  setShown("tilt-row", isFunnel3d());
-  setShown("neck-height-slide", funnel);
-  setShown("minpx-toggle", (funnel || horizontal || state.view === "streamgraph") && usesMinHeight());
+  setShown("height-row", funnel || horizontal);
+  setShown("numbers-row", overlay);
+  setShown("minpx-toggle", (funnel || horizontal) && usesMinHeight());
   setShown("cols-toggle", overlay && state.labels === "line");
-  const neckHint = document.getElementById("neck-hint");
-  if (neckHint) {
-    neckHint.textContent = horizontal
-      ? "Width is the blunt right end. The stream never comes to a point."
-      : "Height 0 is a truncated triangle. Raise it for a bottle.";
-  }
   frame.classList.toggle("is-horizontal", horizontal);
+  frame.classList.toggle("is-table", overlay && state.labels === "table");
   host.classList.toggle("is-horizontal", horizontal);
   if (!overlay) hideLabelOverlay(frame);
 
@@ -1539,17 +1207,10 @@ function render() {
   }
 
   const options =
-    state.view === "current"
-      ? currentOptions(stages, CHART_HEIGHT)
-      : state.view === "streamgraph"
-        ? streamgraphOptions(stages, CHART_HEIGHT)
-        : state.view === "orderbook"
-          ? orderbookOptions(stages, CHART_HEIGHT)
-          : funnelOptions(stages, isFunnel3d() ? "funnel3d" : "funnel", CHART_HEIGHT);
+    state.view === "current" ? currentOptions(stages, CHART_HEIGHT) : funnelOptions(stages, CHART_HEIGHT);
   const existing = state.charts[0];
   const rebuild =
     state.forceRebuild ||
-    isFunnel3d() ||
     state.labels === "table" ||
     !existing ||
     !existing.series[0] ||
@@ -1565,26 +1226,10 @@ function render() {
 }
 
 function bind() {
-  const params = new URLSearchParams(location.search);
-  const pickPreset = (name) => (event) => {
-    event.preventDefault();
-    applyPreset(name);
-  };
-  document.getElementById("preset-default").addEventListener("click", pickPreset("default"));
-  document.getElementById("preset-upgrade").addEventListener("click", pickPreset("upgrade"));
   document.querySelectorAll("[data-view]").forEach((btn) => {
-    btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
-    btn.addEventListener("click", () => {
-      state.view = btn.dataset.view;
-      state.forceRebuild = true;
-      document.querySelectorAll("[data-view]").forEach((b) => {
-        b.setAttribute("aria-pressed", String(b === btn));
-      });
-      render();
-    });
+    btn.addEventListener("click", () => switchView(btn.dataset.view));
   });
   document.querySelectorAll("[data-labels]").forEach((btn) => {
-    btn.setAttribute("aria-pressed", String(btn.dataset.labels === state.labels));
     btn.addEventListener("click", () => {
       state.labels = btn.dataset.labels;
       state.forceRebuild = true;
@@ -1595,7 +1240,6 @@ function bind() {
     });
   });
   document.querySelectorAll("[data-height]").forEach((btn) => {
-    btn.setAttribute("aria-pressed", String(btn.dataset.height === state.heightMode));
     btn.addEventListener("click", () => {
       state.heightMode = btn.dataset.height;
       document.querySelectorAll("[data-height]").forEach((b) => {
@@ -1605,7 +1249,6 @@ function bind() {
     });
   });
   document.querySelectorAll("[data-numbers]").forEach((btn) => {
-    btn.setAttribute("aria-pressed", String(Number(btn.dataset.numbers) === state.numberCount));
     btn.addEventListener("click", () => {
       state.numberCount = Number(btn.dataset.numbers);
       document.querySelectorAll("[data-numbers]").forEach((b) => {
@@ -1615,27 +1258,7 @@ function bind() {
     });
   });
   renderVolumeGrid();
-  applyPreset(params.get("preset") === "upgrade" ? "upgrade" : "default", false);
-  document.getElementById("neckWidth").addEventListener("input", (e) => setNeckWidth(Number(e.target.value)));
-  document.getElementById("neckWidthNum").addEventListener("input", (e) => {
-    if (e.target.value === "") return;
-    setNeckWidth(Number(e.target.value));
-  });
-  document.getElementById("neckHeight").addEventListener("input", (e) => setNeckHeight(Number(e.target.value)));
-  document.getElementById("neckHeightNum").addEventListener("input", (e) => {
-    if (e.target.value === "") return;
-    setNeckHeight(Number(e.target.value));
-  });
-  document.getElementById("tiltAlpha").addEventListener("input", (e) => setAlpha(Number(e.target.value)));
-  document.getElementById("tiltAlphaNum").addEventListener("input", (e) => {
-    if (e.target.value === "") return;
-    setAlpha(Number(e.target.value));
-  });
-  document.getElementById("tiltBeta").addEventListener("input", (e) => setBeta(Number(e.target.value)));
-  document.getElementById("tiltBetaNum").addEventListener("input", (e) => {
-    if (e.target.value === "") return;
-    setBeta(Number(e.target.value));
-  });
+  syncControls();
   document.getElementById("volume-grid").addEventListener("input", (e) => {
     const el = e.target.closest("[data-volume]");
     if (!el) return;
@@ -1643,13 +1266,8 @@ function bind() {
     setVolume(Number(el.dataset.volume), Number(el.value));
   });
   document.getElementById("volume-reset").addEventListener("click", () => {
-    state.volumes = PRESETS[state.preset].volumes.slice();
+    state.volumes = VIEW_DEFAULTS[state.view].volumes.slice();
     syncVolumeFields();
-    render();
-  });
-  document.getElementById("funnel3d").addEventListener("change", (e) => {
-    state.funnel3d = e.target.checked;
-    state.forceRebuild = true;
     render();
   });
   document.getElementById("addLater").addEventListener("change", (e) => {
@@ -1691,4 +1309,3 @@ function bind() {
 
 bind();
 render();
-window.applyPreset = applyPreset;
