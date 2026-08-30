@@ -115,7 +115,8 @@ const VIEW_DEFAULTS = {
     volumes: [42, 17, 12, 9, 4, 3, 2, 2],
     addLater: true,
     neckWidth: 32,
-    neckHeight: 22
+    neckHeight: 22,
+    tablePreset: "1"
   },
   funnel: {
     labels: "table",
@@ -127,7 +128,8 @@ const VIEW_DEFAULTS = {
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
     neckWidth: 32,
-    neckHeight: 22
+    neckHeight: 22,
+    tablePreset: "1"
   },
   horizontal: {
     labels: "inside",
@@ -139,7 +141,8 @@ const VIEW_DEFAULTS = {
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
     neckWidth: 0,
-    neckHeight: 0
+    neckHeight: 0,
+    tablePreset: "1"
   },
   columns: {
     labels: "inside",
@@ -151,9 +154,183 @@ const VIEW_DEFAULTS = {
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
     neckWidth: 0,
-    neckHeight: 0
+    neckHeight: 0,
+    tablePreset: "1"
   }
 };
+
+const TABLE_PRESETS = [
+  {
+    id: "1",
+    name: "T1 Now",
+    hint: "Current: gray 1px rules, fade, no row fill. Text almost at the funnel.",
+    left: 112,
+    right: 64,
+    nameW: 104,
+    padX: 6,
+    width: "92%",
+    fade: true,
+    fill: "none",
+    a: "",
+    b: "",
+    rule: "line",
+    ruleColor: "#E1E3EA",
+    ruleW: 1
+  },
+  {
+    id: "2",
+    name: "T2 Close",
+    hint: "Text 8px from the funnel. Same gray hairline as now.",
+    left: 84,
+    right: 48,
+    nameW: 76,
+    padX: 4,
+    width: "96%",
+    fade: true,
+    fill: "none",
+    a: "",
+    b: "",
+    rule: "line",
+    ruleColor: "#E1E3EA",
+    ruleW: 1
+  },
+  {
+    id: "3",
+    name: "T3 Far",
+    hint: "Text sits farther out. Same gray hairline. Names get more room.",
+    left: 176,
+    right: 104,
+    nameW: 148,
+    padX: 12,
+    width: "86%",
+    fade: true,
+    fill: "none",
+    a: "",
+    b: "",
+    rule: "line",
+    ruleColor: "#E1E3EA",
+    ruleW: 1
+  },
+  {
+    id: "4",
+    name: "T4 Wash",
+    hint: "One fill: all rows grey-1. White 2px seams. Minor, even.",
+    left: 112,
+    right: 64,
+    nameW: 104,
+    padX: 8,
+    width: "92%",
+    fade: true,
+    fill: "wash",
+    a: "#F8F8FB",
+    b: "#F8F8FB",
+    rule: "white",
+    ruleColor: "#FFFFFF",
+    ruleW: 2
+  },
+  {
+    id: "5",
+    name: "T5 Zebra",
+    hint: "One extra fill: odd rows grey-1, even white. White 1px seams.",
+    left: 112,
+    right: 64,
+    nameW: 104,
+    padX: 8,
+    width: "92%",
+    fade: true,
+    fill: "zebra",
+    a: "#F8F8FB",
+    b: "#FFFFFF",
+    rule: "white",
+    ruleColor: "#FFFFFF",
+    ruleW: 1
+  },
+  {
+    id: "6",
+    name: "T6 Two-tone",
+    hint: "Two fills: grey-1 and blue-1. White 1px seams. Separation is tint, not a line.",
+    left: 112,
+    right: 64,
+    nameW: 104,
+    padX: 8,
+    width: "92%",
+    fade: true,
+    fill: "zebra",
+    a: "#F8F8FB",
+    b: "#F5F9FF",
+    rule: "white",
+    ruleColor: "#FFFFFF",
+    ruleW: 1
+  },
+  {
+    id: "7",
+    name: "T7 Bands",
+    hint: "Divider is a filled 6px grey strip, not a 1px line. No row fill.",
+    left: 112,
+    right: 64,
+    nameW: 104,
+    padX: 6,
+    width: "92%",
+    fade: true,
+    fill: "none",
+    a: "",
+    b: "",
+    rule: "band",
+    ruleColor: "#EFF0F4",
+    ruleW: 6
+  },
+  {
+    id: "8",
+    name: "T8 Ticks",
+    hint: "Rules only in the name and count columns. Nothing behind the funnel.",
+    left: 120,
+    right: 72,
+    nameW: 108,
+    padX: 8,
+    width: "90%",
+    fade: false,
+    fill: "none",
+    a: "",
+    b: "",
+    rule: "gutter",
+    ruleColor: "#E1E3EA",
+    ruleW: 1
+  },
+  {
+    id: "9",
+    name: "T9 Close+tone",
+    hint: "Close text + two-tone fill + white seams. Compact gutters.",
+    left: 84,
+    right: 48,
+    nameW: 76,
+    padX: 4,
+    width: "96%",
+    fade: true,
+    fill: "zebra",
+    a: "#F8F8FB",
+    b: "#F5F9FF",
+    rule: "white",
+    ruleColor: "#FFFFFF",
+    ruleW: 1
+  },
+  {
+    id: "10",
+    name: "T10 Soft far",
+    hint: "Far text, one pale wash, white 2px seams. Quietest density.",
+    left: 160,
+    right: 96,
+    nameW: 136,
+    padX: 14,
+    width: "88%",
+    fade: true,
+    fill: "wash",
+    a: "#FAFBFD",
+    b: "#FAFBFD",
+    rule: "white",
+    ruleColor: "#FFFFFF",
+    ruleW: 2
+  }
+];
 
 const state = {
   view: "funnel",
@@ -419,14 +596,104 @@ function clickPoint(point) {
 }
 
 function shapeLayout() {
-  if (state.labels === "table") return { width: "92%", center: ["50%", "50%"] };
+  if (state.labels === "table") {
+    return { width: tablePreset().width, center: ["50%", "50%"] };
+  }
   if (state.labels === "inside") return { width: "62%", center: ["50%", "50%"] };
   if (state.labels === "side") return { width: "48%", center: ["38%", "50%"] };
   return { width: "52%", center: ["36%", "50%"] };
 }
 
+function tablePreset() {
+  return TABLE_PRESETS.find((p) => p.id === String(state.tablePreset)) || TABLE_PRESETS[0];
+}
+
 function tableGutters() {
-  return { left: 112, right: 64 };
+  const p = tablePreset();
+  return { left: p.left, right: p.right };
+}
+
+function applyTableVars(frame) {
+  if (!frame) return;
+  const p = tablePreset();
+  frame.style.setProperty("--table-name-w", `${p.nameW}px`);
+  frame.style.setProperty("--table-pad", `${p.padX}px`);
+  frame.dataset.tableSkin = p.id;
+}
+
+function applyTableMask(svg, frame, preset) {
+  if (!svg) return;
+  if (!preset.fade) {
+    svg.style.maskImage = "none";
+    svg.style.webkitMaskImage = "none";
+    return;
+  }
+  const w = Math.max(1, frame.clientWidth);
+  const l = (preset.left / w) * 100;
+  const r = (preset.right / w) * 100;
+  const fade = Math.max(4, Math.min(12, 100 / 12));
+  const img = `linear-gradient(90deg, #000 0%, #000 ${l.toFixed(2)}%, transparent ${(l + fade).toFixed(2)}%, transparent ${(100 - r - fade).toFixed(2)}%, #000 ${(100 - r).toFixed(2)}%, #000 100%)`;
+  svg.style.maskImage = img;
+  svg.style.webkitMaskImage = img;
+}
+
+function paintTableChrome(svg, slices, frame, frameBox, preset) {
+  const ns = "http://www.w3.org/2000/svg";
+  const width = frame.clientWidth;
+  const ready = slices.filter((s) => s.box);
+  ready.forEach((slice, i) => {
+    if (preset.fill === "none") return;
+    const fill = preset.fill === "zebra" ? (i % 2 === 0 ? preset.a : preset.b) : preset.a;
+    const rect = document.createElementNS(ns, "rect");
+    rect.setAttribute("x", "0");
+    rect.setAttribute("y", String(slice.box.top - frameBox.top));
+    rect.setAttribute("width", String(width));
+    rect.setAttribute("height", String(Math.max(1, slice.box.height)));
+    rect.setAttribute("fill", fill);
+    svg.appendChild(rect);
+  });
+  for (let i = 0; i < ready.length - 1; i++) {
+    const y = (ready[i].box.bottom + ready[i + 1].box.top) / 2 - frameBox.top;
+    if (preset.rule === "none") continue;
+    if (preset.rule === "gutter") {
+      const leftEnd = Math.max(8, preset.left - 8);
+      const rightStart = Math.max(leftEnd + 8, width - preset.right + 8);
+      [
+        [0, leftEnd],
+        [rightStart, width]
+      ].forEach(([x1, x2]) => {
+        const line = document.createElementNS(ns, "line");
+        line.setAttribute("x1", String(x1));
+        line.setAttribute("y1", String(y));
+        line.setAttribute("x2", String(x2));
+        line.setAttribute("y2", String(y));
+        line.setAttribute("stroke", preset.ruleColor);
+        line.setAttribute("stroke-width", String(preset.ruleW));
+        line.setAttribute("stroke-linecap", "square");
+        svg.appendChild(line);
+      });
+      continue;
+    }
+    if (preset.rule === "band") {
+      const h = preset.ruleW;
+      const rect = document.createElementNS(ns, "rect");
+      rect.setAttribute("x", "0");
+      rect.setAttribute("y", String(y - h / 2));
+      rect.setAttribute("width", String(width));
+      rect.setAttribute("height", String(h));
+      rect.setAttribute("fill", preset.ruleColor);
+      svg.appendChild(rect);
+      continue;
+    }
+    const line = document.createElementNS(ns, "line");
+    line.setAttribute("x1", "0");
+    line.setAttribute("y1", String(y));
+    line.setAttribute("x2", String(width));
+    line.setAttribute("y2", String(y));
+    line.setAttribute("stroke", preset.ruleColor);
+    line.setAttribute("stroke-width", String(preset.ruleW));
+    svg.appendChild(line);
+  }
 }
 
 function currentOptions(stages, height) {
@@ -1031,7 +1298,11 @@ function hideLabelOverlay(frame) {
     list.classList.add("hidden");
     list.innerHTML = "";
   }
-  if (svg) svg.innerHTML = "";
+  if (svg) {
+    svg.innerHTML = "";
+    svg.style.maskImage = "";
+    svg.style.webkitMaskImage = "";
+  }
 }
 
 function syncLabels(chart) {
@@ -1087,6 +1358,9 @@ function syncLabels(chart) {
   });
 
   if (mode === "table") {
+    const preset = tablePreset();
+    applyTableVars(frame);
+    applyTableMask(svg, frame, preset);
     slices.forEach((slice, i) => {
       const li = list.children[i];
       if (!li || !slice.el) return;
@@ -1099,11 +1373,7 @@ function syncLabels(chart) {
       li.style.transform = "none";
       li.style.textAlign = "left";
     });
-    const ready = slices.filter((s) => s.box);
-    for (let i = 0; i < ready.length - 1; i++) {
-      const y = (ready[i].box.bottom + ready[i + 1].box.top) / 2 - frameBox.top;
-      drawTableRule(svg, y, frame.clientWidth);
-    }
+    paintTableChrome(svg, slices, frame, frameBox, preset);
     return;
   }
 
@@ -1240,7 +1510,7 @@ function specBody() {
           : state.labels === "side"
             ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
             : state.labels === "table"
-              ? "row rules behind the chart (inner dividers only). Name left, chart center, count/% right."
+              ? `row chrome behind the chart. ${tablePreset().name}: ${tablePreset().hint}`
               : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
 
   return `Highcharts 12.5.0
@@ -1319,7 +1589,8 @@ function viewSnapshot() {
     volumes: state.volumes.slice(),
     addLater: state.addLater,
     neckWidth: state.neckWidth,
-    neckHeight: state.neckHeight
+    neckHeight: state.neckHeight,
+    tablePreset: state.tablePreset
   };
 }
 
@@ -1334,6 +1605,7 @@ function applyViewSettings(saved) {
   state.addLater = saved.addLater;
   state.neckWidth = saved.neckWidth;
   state.neckHeight = saved.neckHeight;
+  state.tablePreset = saved.tablePreset || "1";
 }
 
 function syncControls() {
@@ -1353,6 +1625,11 @@ function syncControls() {
   document.getElementById("splitNumbers").checked = state.splitNumbers;
   document.getElementById("addLater").checked = state.addLater;
   document.getElementById("minHeightPx").value = String(state.minHeightPx);
+  document.querySelectorAll("#table-presets [data-table-preset]").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.tablePreset === String(state.tablePreset)));
+  });
+  const hint = document.getElementById("table-preset-hint");
+  if (hint) hint.textContent = tablePreset().hint;
   syncVolumeFields();
 }
 
@@ -1394,9 +1671,11 @@ function render() {
   setShown("numbers-row", overlay);
   setShown("minpx-toggle", (funnel || horizontal || columns) && usesMinHeight());
   setShown("cols-toggle", overlay && state.labels === "line");
+  setShown("table-temp-row", overlay && state.labels === "table");
   frame.classList.toggle("is-horizontal", horizontal);
   frame.classList.toggle("is-columns", columns);
   frame.classList.toggle("is-table", overlay && state.labels === "table");
+  if (overlay && state.labels === "table") applyTableVars(frame);
   host.classList.toggle("is-horizontal", horizontal);
   if (!overlay) hideLabelOverlay(frame);
   if (!columns) hideColumnAnno();
@@ -1463,6 +1742,25 @@ function bind() {
     });
   });
   renderVolumeGrid();
+  const presetHost = document.getElementById("table-presets");
+  if (presetHost) {
+    presetHost.innerHTML = TABLE_PRESETS.map(
+      (p) =>
+        `<button type="button" data-table-preset="${p.id}" aria-pressed="${p.id === String(state.tablePreset)}">${p.name}</button>`
+    ).join("");
+    presetHost.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-table-preset]");
+      if (!btn) return;
+      state.tablePreset = btn.dataset.tablePreset;
+      state.forceRebuild = true;
+      document.querySelectorAll("#table-presets [data-table-preset]").forEach((b) => {
+        b.setAttribute("aria-pressed", String(b === btn));
+      });
+      const hint = document.getElementById("table-preset-hint");
+      if (hint) hint.textContent = tablePreset().hint;
+      render();
+    });
+  }
   syncControls();
   document.getElementById("volume-grid").addEventListener("input", (e) => {
     const el = e.target.closest("[data-volume]");
