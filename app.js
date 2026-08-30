@@ -162,13 +162,13 @@ const VIEW_DEFAULTS = {
   },
   columns: {
     labels: "inside",
-    heightMode: "share",
+    heightMode: "progfloor",
     minHeightPx: 16,
     richColor: true,
     splitNumbers: true,
     numberCount: 1,
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
-    addLater: false,
+    addLater: true,
     neckWidth: 0,
     neckHeight: 0,
     tablePreset: "100"
@@ -176,12 +176,28 @@ const VIEW_DEFAULTS = {
 };
 
 const TABLE_CLOSE = {
-  left: 96,
-  right: 48,
-  nameW: 88,
+  right: 52,
   padX: 4,
   width: "94%"
 };
+
+let tableNameWidthCache = 0;
+
+function tableNameWidth() {
+  if (tableNameWidthCache) return tableNameWidthCache;
+  const probe = document.createElement("span");
+  probe.style.cssText =
+    "position:absolute;left:-9999px;top:0;font:500 12px 'Roboto Flex', 'Segoe UI', sans-serif;white-space:nowrap";
+  document.body.appendChild(probe);
+  let max = 0;
+  STAGES.forEach((stage) => {
+    probe.textContent = stage.name;
+    max = Math.max(max, probe.offsetWidth);
+  });
+  probe.remove();
+  tableNameWidthCache = Math.ceil(max);
+  return tableNameWidthCache;
+}
 
 const TABLE_PRESETS = [
   {
@@ -493,13 +509,15 @@ function tablePreset() {
 
 function tableGutters() {
   const p = tablePreset();
-  return { left: p.left, right: p.right };
+  const nameW = tableNameWidth();
+  return { left: nameW + p.padX + 8, right: p.right };
 }
 
 function applyTableVars(frame) {
   if (!frame) return;
   const p = tablePreset();
-  frame.style.setProperty("--table-name-w", `${p.nameW}px`);
+  const nameW = tableNameWidth();
+  frame.style.setProperty("--table-name-w", `${nameW}px`);
   frame.style.setProperty("--table-pad", `${p.padX}px`);
   frame.dataset.tableSkin = p.id;
 }
@@ -512,8 +530,9 @@ function applyTableMask(svg, frame, preset) {
     return;
   }
   const w = Math.max(1, frame.clientWidth);
-  const l = (preset.left / w) * 100;
-  const r = (preset.right / w) * 100;
+  const gutters = tableGutters();
+  const l = (gutters.left / w) * 100;
+  const r = (gutters.right / w) * 100;
   const img = `linear-gradient(90deg, transparent 0%, #000 ${l.toFixed(2)}%, #000 ${(100 - r).toFixed(2)}%, transparent 100%)`;
   svg.style.maskImage = img;
   svg.style.webkitMaskImage = img;
@@ -732,13 +751,15 @@ function syncColumnAnno(chart, stages) {
   if (!anno || !chart || !chart.series[0]) return;
   const points = chart.series[0].points;
   const bits = [];
+  const n = points.length;
+  const colW = n ? chart.plotWidth / n : 0;
   points.forEach((point, i) => {
     const a = point.shapeArgs;
     if (!a) return;
     const stage = stages[i];
-    const left = chart.plotLeft + a.x;
+    const left = chart.plotLeft + i * colW;
     const top = chart.plotTop + chart.plotHeight + 6;
-    bits.push(`<button type="button" class="col-foot" data-cstage="${i}" title="${stage.name}" style="left:${left}px;width:${a.width}px;top:${top}px">
+    bits.push(`<button type="button" class="col-foot" data-cstage="${i}" title="${stage.name}" style="left:${left}px;width:${colW}px;top:${top}px">
       <span class="val">${stage.value}</span>
       <span class="name">${stage.name}</span>
     </button>`);
@@ -781,7 +802,7 @@ function columnFunnelOptions(stages, height) {
       backgroundColor: "transparent",
       marginTop: 16,
       marginRight: 10,
-      marginBottom: 84,
+      marginBottom: 128,
       marginLeft: 10,
       events: {
         render() {
