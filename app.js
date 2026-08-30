@@ -137,7 +137,8 @@ const state = {
   preset: "default",
   ...PRESETS.default,
   volumes: PRESETS.default.volumes.slice(),
-  charts: []
+  charts: [],
+  forceRebuild: false
 };
 
 function stackedVolumes() {
@@ -629,6 +630,7 @@ function drawStripe(svg, x1, y1, x2, y2, color) {
 const CONNECTOR = 12;
 
 function syncLabels(chart) {
+  if (!chart || !chart.series || !chart.series[0] || !chart.series[0].points) return;
   const frame = chart.renderTo && chart.renderTo.closest && chart.renderTo.closest(".chart-frame");
   const list = frame && frame.querySelector(".label-col");
   const svg = frame && frame.querySelector(".label-lines");
@@ -890,9 +892,11 @@ function applyPreset(name, doRender = true) {
   state.numberCount = preset.numberCount;
   state.volumes = preset.volumes.slice();
   state.addLater = preset.addLater;
-  document.querySelectorAll("[data-preset]").forEach((btn) => {
-    btn.setAttribute("aria-pressed", String(btn.dataset.preset === name));
-  });
+  state.forceRebuild = true;
+  const defaultBtn = document.getElementById("preset-default");
+  const upgradeBtn = document.getElementById("preset-upgrade");
+  if (defaultBtn) defaultBtn.setAttribute("aria-pressed", String(name === "default"));
+  if (upgradeBtn) upgradeBtn.setAttribute("aria-pressed", String(name === "upgrade"));
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
   });
@@ -935,12 +939,14 @@ function render() {
       ? currentOptions(stages, CHART_HEIGHT)
       : funnelOptions(stages, state.view, CHART_HEIGHT);
   const existing = state.charts[0];
-  const canUpdate =
-    existing &&
-    existing.series[0] &&
-    existing.series[0].type === chartType() &&
-    state.view !== "funnel3d";
-  if (canUpdate) {
+  const rebuild =
+    state.forceRebuild ||
+    state.view === "funnel3d" ||
+    !existing ||
+    !existing.series[0] ||
+    existing.series[0].type !== chartType();
+  state.forceRebuild = false;
+  if (!rebuild && existing) {
     existing.update(options, true, false, false);
     requestAnimationFrame(() => syncLabels(existing));
     return;
@@ -951,9 +957,12 @@ function render() {
 
 function bind() {
   const params = new URLSearchParams(location.search);
-  document.querySelectorAll("[data-preset]").forEach((btn) => {
-    btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
-  });
+  const pickPreset = (name) => (event) => {
+    event.preventDefault();
+    applyPreset(name);
+  };
+  document.getElementById("preset-default").addEventListener("click", pickPreset("default"));
+  document.getElementById("preset-upgrade").addEventListener("click", pickPreset("upgrade"));
   document.querySelectorAll("[data-view]").forEach((btn) => {
     btn.setAttribute("aria-pressed", String(btn.dataset.view === state.view));
     btn.addEventListener("click", () => {
@@ -1055,3 +1064,4 @@ function bind() {
 
 bind();
 render();
+window.applyPreset = applyPreset;

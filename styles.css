@@ -74,8 +74,10 @@ body {
   margin-bottom: 14px;
 }
 
-.panel-head h2 {
-  margin: 0;
+.panel-head .seg {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .setting {
