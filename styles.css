@@ -576,15 +576,6 @@ body {
   mask-image: none;
 }
 
-.temp-tag {
-  margin-left: 4px;
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--grey-5);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
 .label-col {
   position: absolute;
   inset: 0;
@@ -637,10 +628,10 @@ body {
   display: grid;
   grid-template-columns: var(--table-name-w, max-content) minmax(0, 1fr) max-content;
   align-items: center;
-  column-gap: 6px;
+  column-gap: 8px;
   left: 0;
   width: 100%;
-  padding: 0 var(--table-pad, 6px);
+  padding: 0;
   box-sizing: border-box;
   white-space: nowrap;
   overflow: visible;
@@ -655,16 +646,20 @@ body {
 
 .label-col.label-table .hc-row-name {
   min-width: 0;
+  margin: 0;
+  padding: 0;
   overflow: visible;
   font: 500 12px var(--font);
   color: var(--grey-9);
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
 }
 
 .label-col.label-table .hc-nums {
-  justify-content: flex-start;
-  text-align: left;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-end;
+  text-align: right;
 }
 
 .label-col.label-line.label-split li {

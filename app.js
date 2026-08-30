@@ -131,8 +131,7 @@ const VIEW_DEFAULTS = {
     volumes: [42, 17, 12, 9, 4, 3, 2, 2],
     addLater: true,
     neckWidth: 32,
-    neckHeight: 22,
-    tablePreset: "100"
+    neckHeight: 22
   },
   funnel: {
     labels: "table",
@@ -144,8 +143,7 @@ const VIEW_DEFAULTS = {
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
     neckWidth: 32,
-    neckHeight: 22,
-    tablePreset: "100"
+    neckHeight: 22
   },
   horizontal: {
     labels: "inside",
@@ -157,8 +155,7 @@ const VIEW_DEFAULTS = {
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: false,
     neckWidth: 0,
-    neckHeight: 0,
-    tablePreset: "100"
+    neckHeight: 0
   },
   columns: {
     labels: "inside",
@@ -170,15 +167,8 @@ const VIEW_DEFAULTS = {
     volumes: [250, 123, 133, 48, 4, 3, 2, 2],
     addLater: true,
     neckWidth: 0,
-    neckHeight: 0,
-    tablePreset: "100"
+    neckHeight: 0
   }
-};
-
-const TABLE_CLOSE = {
-  right: 52,
-  padX: 4,
-  width: "94%"
 };
 
 let tableNameWidthCache = 0;
@@ -199,37 +189,19 @@ function tableNameWidth() {
   return tableNameWidthCache;
 }
 
-const TABLE_PRESETS = [
-  {
-    id: "100",
-    name: "Tint 100",
-    hint: "Row fill is stage color 100. Strong next to the funnel, fades out to the edges. Names and counts hug the chart.",
-    ...TABLE_CLOSE,
-    fade: "out",
-    fill: "100",
-    rule: "none"
-  },
-  {
-    id: "200",
-    name: "Tint 200",
-    hint: "Same as Tint 100, but stage color 200 (one step stronger).",
-    ...TABLE_CLOSE,
-    fade: "out",
-    fill: "200",
-    rule: "none"
-  },
-  {
-    id: "lines",
-    name: "Gray 300",
-    hint: "Standard: grey-300 rules, full opacity, no fade. Names and counts hug the chart.",
-    ...TABLE_CLOSE,
-    fade: "none",
-    fill: "none",
-    rule: "line",
-    ruleColor: COLORS.grey[3],
-    ruleW: 1
-  }
-];
+function tableNumWidth() {
+  const probe = document.createElement("span");
+  probe.style.cssText =
+    "position:absolute;left:-9999px;top:0;font:500 12px 'Roboto Flex', 'Segoe UI', sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums";
+  document.body.appendChild(probe);
+  let sample = "8888";
+  if (state.numberCount >= 2) sample += " 100%";
+  if (state.numberCount >= 3) sample += " 100%";
+  probe.textContent = sample;
+  const w = Math.ceil(probe.offsetWidth);
+  probe.remove();
+  return w;
+}
 
 const state = {
   view: "funnel",
@@ -495,67 +467,25 @@ function clickPoint(point) {
 }
 
 function shapeLayout() {
-  if (state.labels === "table") {
-    return { width: tablePreset().width, center: ["50%", "50%"] };
-  }
+  if (state.labels === "table") return { width: "100%", center: ["50%", "50%"] };
   if (state.labels === "inside") return { width: "62%", center: ["50%", "50%"] };
   if (state.labels === "side") return { width: "48%", center: ["38%", "50%"] };
   return { width: "52%", center: ["36%", "50%"] };
 }
 
-function tablePreset() {
-  return TABLE_PRESETS.find((p) => p.id === String(state.tablePreset)) || TABLE_PRESETS[0];
-}
-
 function tableGutters() {
-  const p = tablePreset();
-  const nameW = tableNameWidth();
-  return { left: nameW + p.padX + 8, right: p.right };
+  return { left: tableNameWidth() + 8, right: tableNumWidth() + 8 };
 }
 
 function applyTableVars(frame) {
   if (!frame) return;
-  const p = tablePreset();
-  const nameW = tableNameWidth();
-  frame.style.setProperty("--table-name-w", `${nameW}px`);
-  frame.style.setProperty("--table-pad", `${p.padX}px`);
-  frame.dataset.tableSkin = p.id;
+  frame.style.setProperty("--table-name-w", `${tableNameWidth()}px`);
 }
 
-function applyTableMask(svg, frame, preset) {
-  if (!svg) return;
-  if (preset.fade !== "out") {
-    svg.style.maskImage = "none";
-    svg.style.webkitMaskImage = "none";
-    return;
-  }
-  const w = Math.max(1, frame.clientWidth);
-  const gutters = tableGutters();
-  const l = (gutters.left / w) * 100;
-  const r = (gutters.right / w) * 100;
-  const img = `linear-gradient(90deg, transparent 0%, #000 ${l.toFixed(2)}%, #000 ${(100 - r).toFixed(2)}%, transparent 100%)`;
-  svg.style.maskImage = img;
-  svg.style.webkitMaskImage = img;
-}
-
-function paintTableChrome(svg, slices, frame, frameBox, preset) {
+function paintTableChrome(svg, slices, frame, frameBox) {
   const ns = "http://www.w3.org/2000/svg";
   const width = frame.clientWidth;
   const ready = slices.filter((s) => s.box);
-  ready.forEach((slice) => {
-    if (preset.fill === "none") return;
-    const stage = slice.point && slice.point.custom && slice.point.custom.step;
-    const fill = preset.fill === "200" ? stage && stage.tint200 : stage && stage.tint100;
-    if (!fill) return;
-    const rect = document.createElementNS(ns, "rect");
-    rect.setAttribute("x", "0");
-    rect.setAttribute("y", String(slice.box.top - frameBox.top));
-    rect.setAttribute("width", String(width));
-    rect.setAttribute("height", String(Math.max(1, slice.box.height)));
-    rect.setAttribute("fill", fill);
-    svg.appendChild(rect);
-  });
-  if (preset.rule !== "line") return;
   for (let i = 0; i < ready.length - 1; i++) {
     const y = (ready[i].box.bottom + ready[i + 1].box.top) / 2 - frameBox.top;
     const line = document.createElementNS(ns, "line");
@@ -563,8 +493,8 @@ function paintTableChrome(svg, slices, frame, frameBox, preset) {
     line.setAttribute("y1", String(y));
     line.setAttribute("x2", String(width));
     line.setAttribute("y2", String(y));
-    line.setAttribute("stroke", preset.ruleColor);
-    line.setAttribute("stroke-width", String(preset.ruleW));
+    line.setAttribute("stroke", COLORS.grey[3]);
+    line.setAttribute("stroke-width", "1");
     svg.appendChild(line);
   }
 }
@@ -1233,9 +1163,9 @@ function syncLabels(chart) {
   });
 
   if (mode === "table") {
-    const preset = tablePreset();
     applyTableVars(frame);
-    applyTableMask(svg, frame, preset);
+    svg.style.maskImage = "none";
+    svg.style.webkitMaskImage = "none";
     slices.forEach((slice, i) => {
       const li = list.children[i];
       if (!li || !slice.el) return;
@@ -1248,7 +1178,7 @@ function syncLabels(chart) {
       li.style.transform = "none";
       li.style.textAlign = "left";
     });
-    paintTableChrome(svg, slices, frame, frameBox, preset);
+    paintTableChrome(svg, slices, frame, frameBox);
     return;
   }
 
@@ -1385,7 +1315,7 @@ function specBody() {
           : state.labels === "side"
             ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
             : state.labels === "table"
-              ? `row chrome behind the chart. ${tablePreset().name}: ${tablePreset().hint}`
+              ? "grey-300 rules, full opacity, no fade. Name flush left edge, count flush right edge. 8px gap to the silhouette only."
               : `HTML overlay, one vertical column at max(edge) + ${CONNECTOR}px. Colored connectors from true edge to the column. Number columns: ${state.splitNumbers ? "on (name | numbers, 8px gap)" : "off"}.`;
 
   return `Highcharts 12.5.0
@@ -1464,8 +1394,7 @@ function viewSnapshot() {
     volumes: state.volumes.slice(),
     addLater: state.addLater,
     neckWidth: state.neckWidth,
-    neckHeight: state.neckHeight,
-    tablePreset: state.tablePreset
+    neckHeight: state.neckHeight
   };
 }
 
@@ -1480,9 +1409,6 @@ function applyViewSettings(saved) {
   state.addLater = saved.addLater;
   state.neckWidth = saved.neckWidth;
   state.neckHeight = saved.neckHeight;
-  state.tablePreset = ["100", "200", "lines"].includes(saved.tablePreset)
-    ? saved.tablePreset
-    : "100";
 }
 
 function syncControls() {
@@ -1502,11 +1428,6 @@ function syncControls() {
   document.getElementById("splitNumbers").checked = state.splitNumbers;
   document.getElementById("addLater").checked = state.addLater;
   document.getElementById("minHeightPx").value = String(state.minHeightPx);
-  document.querySelectorAll("#table-presets [data-table-preset]").forEach((btn) => {
-    btn.setAttribute("aria-pressed", String(btn.dataset.tablePreset === String(state.tablePreset)));
-  });
-  const hint = document.getElementById("table-preset-hint");
-  if (hint) hint.textContent = tablePreset().hint;
   syncVolumeFields();
 }
 
@@ -1548,7 +1469,6 @@ function render() {
   setShown("numbers-row", overlay);
   setShown("minpx-toggle", (funnel || horizontal || columns) && usesMinHeight());
   setShown("cols-toggle", overlay && state.labels === "line");
-  setShown("table-temp-row", overlay && state.labels === "table");
   frame.classList.toggle("is-horizontal", horizontal);
   frame.classList.toggle("is-columns", columns);
   frame.classList.toggle("is-table", overlay && state.labels === "table");
@@ -1619,25 +1539,6 @@ function bind() {
     });
   });
   renderVolumeGrid();
-  const presetHost = document.getElementById("table-presets");
-  if (presetHost) {
-    presetHost.innerHTML = TABLE_PRESETS.map(
-      (p) =>
-        `<button type="button" data-table-preset="${p.id}" aria-pressed="${p.id === String(state.tablePreset)}">${p.name}</button>`
-    ).join("");
-    presetHost.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-table-preset]");
-      if (!btn) return;
-      state.tablePreset = btn.dataset.tablePreset;
-      state.forceRebuild = true;
-      document.querySelectorAll("#table-presets [data-table-preset]").forEach((b) => {
-        b.setAttribute("aria-pressed", String(b === btn));
-      });
-      const hint = document.getElementById("table-preset-hint");
-      if (hint) hint.textContent = tablePreset().hint;
-      render();
-    });
-  }
   syncControls();
   document.getElementById("volume-grid").addEventListener("input", (e) => {
     const el = e.target.closest("[data-volume]");
