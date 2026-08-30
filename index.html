@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=19" />
 </head>
 <body>
   <div class="page">
@@ -15,10 +15,6 @@
       <div class="widget-head">
         <h2>Funnel by stages</h2>
         <svg class="info" viewBox="64 64 896 896" aria-hidden="true"><path fill="currentColor" d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"/><path fill="currentColor" d="M464 336a48 48 0 1096 0 48 48 0 10-96 0zm72 112h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V456c0-4.4-3.6-8-8-8z"/></svg>
-        <label class="toggle header-toggle" title="When on, each stage count is this stage plus every stage after it.">
-          <input id="addLater" type="checkbox" />
-          Combine
-        </label>
       </div>
       <div id="single" class="chart-frame">
         <div id="chart-main" class="chart"></div>
@@ -84,7 +80,17 @@
         <span class="k">Volume</span>
         <div class="volume-wrap">
           <div id="volume-grid" class="volume-grid"></div>
-          <button type="button" class="text-btn" id="volume-reset">Reset to sample</button>
+          <div class="volume-actions">
+            <button type="button" class="text-btn" id="volume-reset">Reset to sample</button>
+            <button type="button" class="text-btn" id="volume-random">Randomize values</button>
+          </div>
+          <div class="volume-combine">
+            <label class="toggle">
+              <input id="addLater" type="checkbox" />
+              Combine
+            </label>
+            <span class="hint">When on, assume people who reached a later stage also went through the earlier ones. A later stage cannot show a higher count than the previous stage.</span>
+          </div>
         </div>
       </div>
     </section>
@@ -111,6 +117,6 @@
   <script src="vendor/highcharts-more.js"></script>
   <script src="vendor/modules/funnel.js"></script>
   <div id="float-tip" class="float-tip hidden"></div>
-  <script src="app.js?v=18"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>

@@ -1335,7 +1335,7 @@ Height
 
 Volume
   entered: ${volumes}
-  combine: ${state.addLater ? "on (each y/label = this stage + all after it)" : "off"}
+  combine: ${state.addLater ? "on (later stages are a subset of earlier ones; each y/label = this stage + all after it)" : "off"}
   labels/tooltip follow displayed counts
 
 Hover
@@ -1375,6 +1375,10 @@ function renderVolumeGrid() {
       <input type="number" data-volume="${i}" min="0" max="${VOLUME_MAX}" value="${state.volumes[i]}" />
     </label>`
   ).join("");
+}
+
+function randomizeVolumes() {
+  state.volumes = STAGES.map(() => Math.floor(Math.random() * (VOLUME_MAX + 1)));
 }
 
 function setVolume(i, n) {
@@ -1548,6 +1552,11 @@ function bind() {
   });
   document.getElementById("volume-reset").addEventListener("click", () => {
     state.volumes = VIEW_DEFAULTS[state.view].volumes.slice();
+    syncVolumeFields();
+    render();
+  });
+  document.getElementById("volume-random").addEventListener("click", () => {
+    randomizeVolumes();
     syncVolumeFields();
     render();
   });
