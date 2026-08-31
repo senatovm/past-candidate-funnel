@@ -648,9 +648,8 @@ body {
   z-index: 3;
 }
 
-.hfunnel-pill {
-  position: absolute;
-  transform: translate(-50%, -50%);
+.hfunnel-pill,
+.hc-pill {
   background: #fff;
   border-radius: 999px;
   padding: 3px 10px;
@@ -658,6 +657,16 @@ body {
   color: var(--grey-9);
   box-shadow: 0 1px 2px rgba(0, 22, 54, 0.08);
   font-variant-numeric: tabular-nums;
+}
+
+.hfunnel-pill {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.hc-pill {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .float-tip {
@@ -708,6 +717,11 @@ body {
   text-align: center;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
   white-space: normal;
+}
+
+.label-col.label-inside.label-rich li {
+  text-shadow: none;
+  white-space: nowrap;
 }
 
 .label-col.label-side li,

@@ -327,6 +327,10 @@ function usesLabelOverlay() {
   return state.view === "current" || state.view === "funnel";
 }
 
+function usesInsidePill() {
+  return usesLabelOverlay() && state.labels === "inside" && state.richColor;
+}
+
 function pct(n) {
   if (!Number.isFinite(n)) return "";
   return `${Math.round(100 * n)}%`;
@@ -411,13 +415,15 @@ function stageNumsHtml(stage) {
 
 function stageLabelHtml(stage) {
   const nums = stageNumsHtml(stage);
-  const dot = state.labels === "inside"
-    ? `<span class="hc-dot" style="color:${accent(stage)}">●</span>`
-    : "";
   if (state.labels === "line" && state.splitNumbers) {
     return `<span class="hc-label-name">${stage.name}</span>${nums}`;
   }
-  return `${dot}<span class="hc-label-name">${stage.name}</span> ${nums}`;
+  const pill = usesInsidePill();
+  const dot = state.labels === "inside" && !pill
+    ? `<span class="hc-dot" style="color:${accent(stage)}">●</span>`
+    : "";
+  const body = `${dot}<span class="hc-label-name">${stage.name}</span> ${nums}`;
+  return pill ? `<span class="hc-pill">${body}</span>` : body;
 }
 
 function paintFill(graphic, fill) {
@@ -1188,7 +1194,8 @@ function syncLabels(chart) {
   const points = chart.series[0].points.filter((p) => p.custom && p.custom.type === "step");
   const mode = state.labels;
   const split = mode === "line" && state.splitNumbers;
-  list.className = `label-col label-${mode}${split ? " label-split" : ""}`;
+  const pill = usesInsidePill();
+  list.className = `label-col label-${mode}${split ? " label-split" : ""}${pill ? " label-rich" : ""}`;
   list.classList.remove("hidden");
   list.innerHTML = points
     .map((point) => {
@@ -1256,9 +1263,8 @@ function syncLabels(chart) {
     li.style.right = "auto";
     li.style.width = "auto";
     if (mode === "inside") {
-      const width = Math.max(48, box.width - 12);
       li.style.left = `${sliceLeft + box.width / 2}px`;
-      li.style.width = `${width}px`;
+      li.style.width = pill ? "auto" : `${Math.max(48, box.width - 12)}px`;
       li.style.textAlign = "center";
     } else if (mode === "side") {
       li.style.left = `${edge + CONNECTOR}px`;
@@ -1374,7 +1380,9 @@ function specBody() {
       : state.view === "columns"
         ? "under each bar: count + name. In the gap: pass % (this stage → next). Highcharts dataLabels off."
         : state.labels === "inside"
-          ? "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
+          ? state.richColor
+            ? "HTML overlay, centered in the slice. White pill (same as Horizontal funnel share). Color dot off. Highcharts dataLabels off."
+            : "HTML overlay, centered in the slice. Color dot on. Highcharts dataLabels off."
           : state.labels === "side"
             ? `HTML overlay at true slice edge + ${CONNECTOR}px. Equal-length colored connectors, docked to the silhouette at mid-Y.`
             : state.labels === "table"
